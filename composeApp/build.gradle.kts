@@ -21,7 +21,6 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
-            implementation("com.lordcodes.turtle:turtle:0.10.0")
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
