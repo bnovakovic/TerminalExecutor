@@ -8,10 +8,15 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 
-suspend fun exportList(itemData: List<ListItemGroupUiState>, file: File) {
-    val finalFile = if (file.extension != JSON_EXTENSION) File("$file.$JSON_EXTENSION") else file
-    val converted = ItemList(itemData.map { it.toListItemGroupData() })
-    val json = Json { prettyPrint = true }
-    val jsonString = json.encodeToString(converted)
-    finalFile.writeText(jsonString)
+suspend fun exportList(itemData: List<ListItemGroupUiState>, file: File): Result<Unit> {
+    return try {
+        val finalFile = if (file.extension != JSON_EXTENSION) File("$file.$JSON_EXTENSION") else file
+        val converted = ItemList(itemData.map { it.toListItemGroupData() })
+        val json = Json { prettyPrint = true }
+        val jsonString = json.encodeToString(converted)
+        finalFile.writeText(jsonString)
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
 }

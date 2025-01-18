@@ -3,9 +3,9 @@ package com.bojan.terminalexecutor.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bojan.terminalexecutor.commandexecutor.executeCommand
-import com.bojan.terminalexecutor.enum.ExecuteState
 import com.bojan.terminalexecutor.configmanagers.exportList
 import com.bojan.terminalexecutor.configmanagers.importList
+import com.bojan.terminalexecutor.enum.ExecuteState
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import com.bojan.terminalexecutor.ui.uistates.MainScreenUiState
@@ -85,6 +85,12 @@ class MainScreenViewModel : ViewModel() {
         _uiState.value = _uiState.value.copy(allowExecution = false)
         viewModelScope.launch {
             exportList(uiState.value.items, file)
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(outputText = "Export success")
+                }
+                .onFailure {
+                    _uiState.value = _uiState.value.copy(outputText = it.message?: "")
+                }
             _uiState.value = _uiState.value.copy(allowExecution = true)
         }
     }

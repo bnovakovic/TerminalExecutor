@@ -34,11 +34,11 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import com.bojan.terminalexecutor.constants.JSON_EXTENSION
-import com.bojan.terminalexecutor.ktx.thinOutline
-import com.bojan.terminalexecutor.ui.controls.CommandListGroup
 import com.bojan.terminalexecutor.enum.ExecuteState
+import com.bojan.terminalexecutor.ktx.thinOutline
 import com.bojan.terminalexecutor.swing.openFileSwingChooser
 import com.bojan.terminalexecutor.swing.saveFileSwingChooser
+import com.bojan.terminalexecutor.ui.controls.CommandListGroup
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.viewmodel.MainScreenViewModel
 import org.jetbrains.compose.resources.painterResource
