@@ -41,11 +41,12 @@ fun CommandListItem(
 
 @Composable
 fun CommandListGroup(
+    id: String,
     text: String,
     items: List<ListItemUiState>,
     children: List<ListItemGroupUiState>,
     modifier: Modifier = Modifier,
-    onAddItem: () -> Unit,
+    onAddItem: (String) -> Unit,
     onItemSelected: (List<String>) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -55,14 +56,15 @@ fun CommandListGroup(
             Spacer(modifier = Modifier.width(8.dp))
             Text(text)
             Spacer(modifier = Modifier.width(8.dp))
-            Image(painter = painterResource(Res.drawable.add), contentDescription = null, modifier = Modifier.size(16.dp).clickable { onAddItem() })
+            Image(painter = painterResource(Res.drawable.add), contentDescription = null, modifier = Modifier.size(16.dp).clickable { onAddItem(id) })
         }
         if (expanded) {
             items.forEach {
                 CommandListItem(it.name, Modifier.padding(start = 24.dp)) { onItemSelected(it.commands) }
             }
             children.forEach {
-                CommandListGroup(it.text, it.items, it.children, Modifier.padding(start = 24.dp), onAddItem, onItemSelected)
+                val thisId = it.id
+                CommandListGroup(thisId, it.text, it.items, it.children, Modifier.padding(start = 24.dp), { onAddItem(thisId) }, onItemSelected)
             }
         }
     }

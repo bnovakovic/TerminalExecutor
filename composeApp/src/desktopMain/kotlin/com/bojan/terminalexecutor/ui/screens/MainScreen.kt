@@ -49,6 +49,7 @@ import com.bojan.terminalexecutor.swing.openFileSwingChooser
 import com.bojan.terminalexecutor.swing.saveFileSwingChooser
 import com.bojan.terminalexecutor.ui.controls.CommandListGroup
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
+import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import com.bojan.terminalexecutor.viewmodel.MainScreenViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -93,7 +94,7 @@ fun MainScreen(viewModel: MainScreenViewModel) {
         ItemList(
             items = uiState.items.items,
             modifier = Modifier.weight(0.5f),
-            onAddItem = { viewModel.showAddItemDialogue() },
+            onAddItem = { viewModel.showAddItemDialogue(it) },
             onSelected = { viewModel.itemSelected(it) }
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -135,16 +136,22 @@ fun MainScreen(viewModel: MainScreenViewModel) {
     when (uiState.mainScreenDialog) {
         MainScreenDialog.NONE -> {}
         MainScreenDialog.ADD_ITEM -> {
-            Dialog(onDismissRequest = {}) { AddItemScreen(onCancel = { viewModel.hideDialogue() }, onConfirm = {}) }
+            Dialog(onDismissRequest = {}) { AddItemScreen(onCancel = { viewModel.hideDialogue() }, onAddItem = { viewModel.addItem(it) }, onAddGroup = { viewModel.addGroup(it) }) }
         }
     }
 }
 
 @Composable
-fun AddItemScreen(modifier: Modifier = Modifier, onCancel: () -> Unit, onConfirm: () -> Unit) {
+fun AddItemScreen(
+    modifier: Modifier = Modifier,
+    onCancel: () -> Unit,
+    onAddItem: (ListItemUiState) -> Unit,
+    onAddGroup: (ListItemGroupUiState) -> Unit
+) {
     Column(modifier = Modifier.background(MaterialTheme.colors.surface).padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        val radioOptions = listOf(stringResource(Res.string.command), stringResource(Res.string.group))
+        val radioOptions = listOf(stringResource(Res.string.group), stringResource(Res.string.command))
         val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
+        val addingCommand = radioOptions.indexOf(selectedOption) == 1
         Text(stringResource(Res.string.item_type))
         Spacer(modifier = Modifier.height(4.dp))
         Row(modifier.selectableGroup().thinOutline()) {
@@ -188,8 +195,8 @@ fun AddItemScreen(modifier: Modifier = Modifier, onCancel: () -> Unit, onConfirm
 
         Spacer(modifier.height(8.dp))
 
-        if (radioOptions.indexOf(selectedOption) == 0) {
-            var commandText by remember { mutableStateOf("") }
+        var commandText by remember { mutableStateOf("") }
+        if (addingCommand) {
             TextField(
                 value = commandText,
                 onValueChange = { commandText = it },
@@ -207,7 +214,15 @@ fun AddItemScreen(modifier: Modifier = Modifier, onCancel: () -> Unit, onConfirm
                 Text(stringResource(Res.string.cancel))
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = onConfirm) {
+            Button(
+                onClick = {
+                    if (addingCommand) {
+                        onAddItem(ListItemUiState(nameText, commandText.split(" ")))
+                    } else {
+                        onAddGroup(ListItemGroupUiState("", nameText, emptyList(), emptyList()))
+                    }
+                }
+            ) {
                 Text(stringResource(Res.string.ok))
             }
         }
@@ -215,13 +230,13 @@ fun AddItemScreen(modifier: Modifier = Modifier, onCancel: () -> Unit, onConfirm
 }
 
 @Composable
-fun ItemList(items: List<ListItemGroupUiState>, modifier: Modifier, onAddItem: () -> Unit, onSelected: (List<String>) -> Unit) {
+fun ItemList(items: List<ListItemGroupUiState>, modifier: Modifier, onAddItem: (String) -> Unit, onSelected: (List<String>) -> Unit) {
     val listState = rememberLazyListState()
     Row(modifier = Modifier.fillMaxWidth().thinOutline().then(modifier)) {
         LazyColumn(state = listState, modifier = Modifier.weight(1.0f)) {
             items(items) { item ->
                 item.apply {
-                    CommandListGroup(text, this.items, children, Modifier, onAddItem, onSelected)
+                    CommandListGroup(item.id, text, this.items, children, Modifier, { onAddItem(it) }, onSelected)
                 }
 
             }

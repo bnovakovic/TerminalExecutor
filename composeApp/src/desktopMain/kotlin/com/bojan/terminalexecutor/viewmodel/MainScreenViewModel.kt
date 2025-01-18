@@ -63,6 +63,7 @@ class MainScreenViewModel : ViewModel() {
     )
     val uiState = _uiState.asStateFlow()
     private var commandToExecute: Array<String> = emptyArray()
+    private var storedParentId: String? = null
 
     fun itemSelected(commands: List<String>) {
         val separator = " "
@@ -113,12 +114,27 @@ class MainScreenViewModel : ViewModel() {
         }
     }
 
-    fun showAddItemDialogue() {
-        //_uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.ADD_ITEM)
-        println(_uiState.value.items)
+    fun showAddItemDialogue(parentId: String) {
+        _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.ADD_ITEM)
+        storedParentId = parentId
     }
 
     fun hideDialogue() {
         _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.NONE)
+        storedParentId = null
+    }
+
+    fun addGroup(listItemGroupUiState: ListItemGroupUiState) {
+        storedParentId?.let {
+            val newItems = _uiState.value.items.addGroup(it, listItemGroupUiState)
+        }
+        hideDialogue()
+    }
+
+    fun addItem(listItemUiState: ListItemUiState) {
+        storedParentId?.let {
+            val newItems = _uiState.value.items.addItem(it, listItemUiState)
+        }
+        hideDialogue()
     }
 }
