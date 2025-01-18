@@ -1,6 +1,7 @@
 package com.bojan.terminalexecutor.viewmodel
 
 import com.bojan.terminalexecutor.commandexecutor.executeCommand
+import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import com.bojan.terminalexecutor.ui.uistates.MainScreenUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,10 +11,32 @@ class MainScreenViewModel {
     private val _uiState = MutableStateFlow(
         MainScreenUiState(
             items = listOf(
-                ListItemUiState("Adb devices", listOf("adb", "devices"), false, false),
-                ListItemUiState("Git status", listOf("git", "status"), false, false),
-                ListItemUiState("Adb Kill Server", listOf("adb", "kill-server"), false, false),
-                ListItemUiState("Adb Start Server", listOf("adb", "start-server"), false, false),
+                ListItemGroupUiState(
+                    text = "ADB",
+                    items = listOf(
+                        ListItemUiState("ADB list devices", listOf("adb", "devices"), false),
+                    ),
+                    children = listOf(
+                        ListItemGroupUiState(
+                            text = "Server",
+                            items = listOf(
+                                ListItemUiState("ADB Kill Server", listOf("adb", "kill-server"), false),
+                                ListItemUiState("ADB Start Server", listOf("adb", "start-server"), false),
+                            ),
+                            children = emptyList()
+                        )
+                    )
+                ),
+                ListItemGroupUiState(
+                    text = "GIT",
+                    items = listOf(
+                        ListItemUiState("Git status", listOf("git", "status"), false),
+                        ListItemUiState("Git read remote config", listOf("git", "config", "--get", "remote.origin.url"), false),
+                        ListItemUiState("Git show remote", listOf("git", "remote", "show", "origin"), false),
+                    ),
+                    children = emptyList()
+                )
+
             ),
             command = "",
             allowExecution = false,
@@ -23,30 +46,14 @@ class MainScreenViewModel {
     val uiState = _uiState.asStateFlow()
     private var commandToExecute: Array<String> = emptyArray()
 
-    fun itemFavoriteToggle(name: String) {
-        val items = _uiState.value.items
-        val newItems = items.map { if (it.name == name) it.copy(isFavorite = !it.isFavorite) else it }
-        _uiState.value = _uiState.value.copy(items = newItems)
-    }
-
-    fun itemSelected(name: String) {
-        val found = _uiState.value.items.find { it.name == name }
-
-        found?.let { foundItem ->
+    fun itemSelected(commands: List<String>) {
             val separator = " "
-            val commandString = foundItem.commands.joinToString(separator)
-            val items = _uiState.value.items
-            val newItems = items.map {
-                val isSelected = it.name == name
-                it.copy(isSelected = isSelected)
-            }
+            val commandString = commands.joinToString(separator)
             _uiState.value = _uiState.value.copy(
-                items = newItems,
                 command = commandString,
-                allowExecution = foundItem.commands.isNotEmpty()
+                allowExecution = commands.isNotEmpty()
             )
-            commandToExecute = foundItem.commands.toTypedArray()
-        }
+            commandToExecute = commands.toTypedArray()
     }
 
     fun execute() {

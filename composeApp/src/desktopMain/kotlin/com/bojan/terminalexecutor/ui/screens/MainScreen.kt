@@ -2,16 +2,13 @@ package com.bojan.terminalexecutor.ui.screens
 
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,24 +20,19 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.bojan.terminalexecutor.ktx.thinOutline
+import com.bojan.terminalexecutor.ui.controls.CommandListGroup
 import com.bojan.terminalexecutor.ui.controls.CommandListItem
+import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import com.bojan.terminalexecutor.viewmodel.MainScreenViewModel
 import org.jetbrains.compose.resources.painterResource
 import terminalexecutor.composeapp.generated.resources.Res
-import terminalexecutor.composeapp.generated.resources.compose_multiplatform
 import terminalexecutor.composeapp.generated.resources.copy_icon
 
 @Composable
@@ -50,7 +42,6 @@ fun MainScreen(viewModel: MainScreenViewModel) {
         ItemList(
             items = uiState.items,
             modifier = Modifier.weight(0.5f),
-            onFavorite = { viewModel.itemFavoriteToggle(it) },
             onSelected = { viewModel.itemSelected(it) }
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -64,21 +55,17 @@ fun MainScreen(viewModel: MainScreenViewModel) {
 }
 
 @Composable
-fun ItemList(items: List<ListItemUiState>, modifier: Modifier, onFavorite: (String) -> Unit, onSelected: (String) -> Unit) {
+fun ItemList(items: List<ListItemGroupUiState>, modifier: Modifier, onSelected: (List<String>) -> Unit) {
     val listState = rememberLazyListState()
     Row(modifier = Modifier.fillMaxWidth().thinOutline().then(modifier)) {
         LazyColumn(state = listState, modifier = Modifier.weight(1.0f)) {
             items(items) { item ->
-                CommandListItem(
-                    name = item.name,
-                    isFavorite = item.isFavorite,
-                    isSelected = item.isSelected,
-                    onFavoriteClick = { onFavorite(item.name) },
-                    onItemSelected = { onSelected(item.name) }
-                )
+                item.apply {
+                    CommandListGroup(text, this.items, children, Modifier, onSelected)
+                }
+
             }
         }
-        //Box(modifier = Modifier.background(Color.Red).fillMaxHeight().width(10.dp)) {  }
         VerticalScrollbar(adapter = rememberScrollbarAdapter(scrollState = listState), modifier = Modifier.width(14.dp).padding(horizontal = 2.dp, vertical = 1.dp))
     }
 }
