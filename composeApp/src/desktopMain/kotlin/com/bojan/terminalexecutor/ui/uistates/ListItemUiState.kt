@@ -5,9 +5,3 @@ data class ListItemUiState(
     val commands: List<String>,
     val isSelected: Boolean
 )
-
-data class ListItemGroupUiState(
-    val text: String,
-    val items: List<ListItemUiState>,
-    val children: List<ListItemGroupUiState>
-)

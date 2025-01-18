@@ -24,20 +24,18 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import com.bojan.terminalexecutor.ktx.thinOutline
 import com.bojan.terminalexecutor.ui.controls.CommandListGroup
-import com.bojan.terminalexecutor.ui.uistates.ExecuteState
+import com.bojan.terminalexecutor.enum.ExecuteState
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.viewmodel.MainScreenViewModel
 import org.jetbrains.compose.resources.painterResource
@@ -89,6 +87,7 @@ fun ActionItems(
     executeState: ExecuteState,
     onExecute: () -> Unit
 ) {
+    val clipboardManager = LocalClipboardManager.current
     Column(modifier = Modifier.fillMaxWidth().then(modifier)) {
         TextField(
             value = command,
@@ -97,7 +96,7 @@ fun ActionItems(
             readOnly = true,
             label = { Text("Command") },
             trailingIcon = {
-                IconButton(onClick = {}) {
+                IconButton(onClick = { clipboardManager.setText(buildAnnotatedString { append(command) }) }) {
                     Icon(painter = painterResource(Res.drawable.copy_icon), contentDescription = null)
                 }
             }
@@ -110,7 +109,7 @@ fun ActionItems(
             readOnly = true,
             label = { Text("Output") },
             trailingIcon = {
-                IconButton(onClick = {}) {
+                IconButton(onClick = { clipboardManager.setText(buildAnnotatedString { append(output) }) }) {
                     Icon(painter = painterResource(Res.drawable.copy_icon), contentDescription = null)
                 }
             }
@@ -127,6 +126,15 @@ fun ActionItems(
                 ExecuteState.ERROR -> { Icon(Icons.Default.Warning, contentDescription = null, modifier = Modifier.size(32.dp), tint = MaterialTheme.colors.error) }
                 ExecuteState.OK -> { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(32.dp), MaterialTheme.colors.primary) }
             }
+            Spacer(modifier = Modifier.weight(1.0f))
+            Button(onClick = {}) {
+                Text("Import")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(onClick = {}) {
+                Text("Export")
+            }
+
         }
     }
 }

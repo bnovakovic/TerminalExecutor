@@ -3,14 +3,14 @@ package com.bojan.terminalexecutor.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bojan.terminalexecutor.commandexecutor.executeCommand
-import com.bojan.terminalexecutor.ui.uistates.ExecuteState
+import com.bojan.terminalexecutor.enum.ExecuteState
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import com.bojan.terminalexecutor.ui.uistates.MainScreenUiState
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
 
 class MainScreenViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(
