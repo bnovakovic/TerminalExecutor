@@ -11,13 +11,16 @@ import com.bojan.terminalexecutor.ui.uistates.ItemsUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import com.bojan.terminalexecutor.ui.uistates.MainScreenUiState
+import com.bojan.terminalexecutor.utils.RandomIdGenerator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 
 
-class MainScreenViewModel : ViewModel() {
+class MainScreenViewModel(
+    val idGenerator: RandomIdGenerator = RandomIdGenerator()
+) : ViewModel() {
     private val exampleItems = listOf(
         ListItemGroupUiState(
             id = "0",
@@ -104,7 +107,7 @@ class MainScreenViewModel : ViewModel() {
 
     fun import(file: File, successMessage: String) {
         viewModelScope.launch {
-            importList(file)
+            importList(file, idGenerator)
                 .onSuccess {
                     _uiState.value = _uiState.value.copy(items = ItemsUiState(it), command = "", outputText = successMessage)
                 }

@@ -50,6 +50,7 @@ import com.bojan.terminalexecutor.swing.saveFileSwingChooser
 import com.bojan.terminalexecutor.ui.controls.CommandListGroup
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
+import com.bojan.terminalexecutor.utils.RandomIdGenerator
 import com.bojan.terminalexecutor.viewmodel.MainScreenViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -136,7 +137,14 @@ fun MainScreen(viewModel: MainScreenViewModel) {
     when (uiState.mainScreenDialog) {
         MainScreenDialog.NONE -> {}
         MainScreenDialog.ADD_ITEM -> {
-            Dialog(onDismissRequest = {}) { AddItemScreen(onCancel = { viewModel.hideDialogue() }, onAddItem = { viewModel.addItem(it) }, onAddGroup = { viewModel.addGroup(it) }) }
+            Dialog(onDismissRequest = {}) {
+                AddItemScreen(
+                    randomIdGenerator = viewModel.idGenerator,
+                    onCancel = { viewModel.hideDialogue() },
+                    onAddItem = { viewModel.addItem(it) },
+                    onAddGroup = { viewModel.addGroup(it) }
+                )
+            }
         }
     }
 }
@@ -144,6 +152,7 @@ fun MainScreen(viewModel: MainScreenViewModel) {
 @Composable
 fun AddItemScreen(
     modifier: Modifier = Modifier,
+    randomIdGenerator: RandomIdGenerator,
     onCancel: () -> Unit,
     onAddItem: (ListItemUiState) -> Unit,
     onAddGroup: (ListItemGroupUiState) -> Unit
@@ -219,7 +228,7 @@ fun AddItemScreen(
                     if (addingCommand) {
                         onAddItem(ListItemUiState(nameText, commandText.split(" ")))
                     } else {
-                        onAddGroup(ListItemGroupUiState("", nameText, emptyList(), emptyList()))
+                        onAddGroup(ListItemGroupUiState(randomIdGenerator.generateId(), nameText, emptyList(), emptyList()))
                     }
                 }
             ) {
