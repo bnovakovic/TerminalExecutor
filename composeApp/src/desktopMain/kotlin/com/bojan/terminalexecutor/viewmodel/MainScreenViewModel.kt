@@ -1,13 +1,18 @@
 package com.bojan.terminalexecutor.viewmodel
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.bojan.terminalexecutor.commandexecutor.executeCommand
+import com.bojan.terminalexecutor.ui.uistates.ExecuteState
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import com.bojan.terminalexecutor.ui.uistates.MainScreenUiState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class MainScreenViewModel {
+class MainScreenViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(
         MainScreenUiState(
             items = listOf(
@@ -15,6 +20,8 @@ class MainScreenViewModel {
                     text = "ADB",
                     items = listOf(
                         ListItemUiState("ADB list devices", listOf("adb", "devices"), false),
+                        ListItemUiState("Wrong ADB command", listOf("adb", "programs"), false),
+                        ListItemUiState("Wrong adb executable", listOf("adbe", "devices"), false),
                     ),
                     children = listOf(
                         ListItemGroupUiState(
@@ -40,29 +47,33 @@ class MainScreenViewModel {
             ),
             command = "",
             allowExecution = false,
-            outputText = ""
+            outputText = "",
+            executeState = ExecuteState.NONE
         )
     )
     val uiState = _uiState.asStateFlow()
     private var commandToExecute: Array<String> = emptyArray()
 
     fun itemSelected(commands: List<String>) {
-            val separator = " "
-            val commandString = commands.joinToString(separator)
-            _uiState.value = _uiState.value.copy(
-                command = commandString,
-                allowExecution = commands.isNotEmpty()
-            )
-            commandToExecute = commands.toTypedArray()
+        val separator = " "
+        val commandString = commands.joinToString(separator)
+        _uiState.value = _uiState.value.copy(
+            command = commandString,
+            allowExecution = commands.isNotEmpty()
+        )
+        commandToExecute = commands.toTypedArray()
     }
 
     fun execute() {
-        executeCommand(commandToExecute)
-            .onSuccess {
-                _uiState.value = _uiState.value.copy(outputText = "Success: $it")
-            }
-            .onFailure {
-                _uiState.value = _uiState.value.copy(outputText = "Failure: $it")
-            }
+        _uiState.value = _uiState.value.copy(executeState = ExecuteState.WORKING, allowExecution = false, outputText = "")
+        viewModelScope.launch {
+            executeCommand(commandToExecute)
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(outputText = it, executeState = ExecuteState.OK, allowExecution = true)
+                }
+                .onFailure {
+                    _uiState.value = _uiState.value.copy(outputText = it, executeState = ExecuteState.ERROR, allowExecution = true)
+                }
+        }
     }
 }
