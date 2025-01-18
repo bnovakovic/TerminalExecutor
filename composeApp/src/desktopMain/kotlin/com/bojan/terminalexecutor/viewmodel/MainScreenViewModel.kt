@@ -127,6 +127,7 @@ class MainScreenViewModel : ViewModel() {
     fun addGroup(listItemGroupUiState: ListItemGroupUiState) {
         storedParentId?.let {
             val newItems = _uiState.value.items.addGroup(it, listItemGroupUiState)
+            _uiState.value = _uiState.value.copy(items = newItems)
         }
         hideDialogue()
     }
@@ -134,6 +135,7 @@ class MainScreenViewModel : ViewModel() {
     fun addItem(listItemUiState: ListItemUiState) {
         storedParentId?.let {
             val newItems = _uiState.value.items.addItem(it, listItemUiState)
+            _uiState.value = _uiState.value.copy(items = newItems)
         }
         hideDialogue()
     }
