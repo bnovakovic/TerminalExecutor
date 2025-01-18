@@ -19,16 +19,16 @@ class MainScreenViewModel : ViewModel() {
                 ListItemGroupUiState(
                     text = "ADB",
                     items = listOf(
-                        ListItemUiState("ADB list devices", listOf("adb", "devices"), false),
-                        ListItemUiState("Wrong ADB command", listOf("adb", "programs"), false),
-                        ListItemUiState("Wrong adb executable", listOf("adbe", "devices"), false),
+                        ListItemUiState("ADB list devices", listOf("adb", "devices")),
+                        ListItemUiState("Wrong ADB command", listOf("adb", "programs")),
+                        ListItemUiState("Wrong adb executable", listOf("adbe", "devices")),
                     ),
                     children = listOf(
                         ListItemGroupUiState(
                             text = "Server",
                             items = listOf(
-                                ListItemUiState("ADB Kill Server", listOf("adb", "kill-server"), false),
-                                ListItemUiState("ADB Start Server", listOf("adb", "start-server"), false),
+                                ListItemUiState("ADB Kill Server", listOf("adb", "kill-server")),
+                                ListItemUiState("ADB Start Server", listOf("adb", "start-server")),
                             ),
                             children = emptyList()
                         )
@@ -37,9 +37,9 @@ class MainScreenViewModel : ViewModel() {
                 ListItemGroupUiState(
                     text = "GIT",
                     items = listOf(
-                        ListItemUiState("Git status", listOf("git", "status"), false),
-                        ListItemUiState("Git read remote config", listOf("git", "config", "--get", "remote.origin.url"), false),
-                        ListItemUiState("Git show remote", listOf("git", "remote", "show", "origin"), false),
+                        ListItemUiState("Git status", listOf("git", "status")),
+                        ListItemUiState("Git read remote config", listOf("git", "config", "--get", "remote.origin.url")),
+                        ListItemUiState("Git show remote", listOf("git", "remote", "show", "origin")),
                     ),
                     children = emptyList()
                 )

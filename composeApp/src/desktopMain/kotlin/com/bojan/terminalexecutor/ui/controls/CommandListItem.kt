@@ -30,11 +30,10 @@ import terminalexecutor.composeapp.generated.resources.arrow_right
 @Composable
 fun CommandListItem(
     name: String,
-    isSelected: Boolean,
     modifier: Modifier = Modifier,
     onItemSelected: () -> Unit
 ) {
-    Row(modifier = Modifier.clickable { onItemSelected() }.fillMaxWidth().background(getSelectableColor(isSelected)).then(modifier), verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = Modifier.clickable { onItemSelected() }.fillMaxWidth().then(modifier), verticalAlignment = Alignment.CenterVertically) {
         Spacer(modifier = Modifier.width(10.dp))
         Text(name)
     }
@@ -66,7 +65,7 @@ fun CommandListGroup(
         }
         if (expanded) {
             items.forEach {
-                CommandListItem(it.name, it.isSelected, Modifier.padding(start = 24.dp)) { onItemSelected(it.commands) }
+                CommandListItem(it.name, Modifier.padding(start = 24.dp)) { onItemSelected(it.commands) }
             }
             children.forEach {
                 CommandListGroup(it.text, it.items, it.children, Modifier.padding(start = 24.dp), onItemSelected)
