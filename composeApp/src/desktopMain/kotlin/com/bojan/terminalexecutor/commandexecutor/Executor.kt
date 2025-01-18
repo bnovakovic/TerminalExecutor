@@ -3,7 +3,7 @@ package com.bojan.terminalexecutor.commandexecutor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-suspend fun executeCommand(command: Array<String>): CommandResult {
+suspend fun executeCommand(command: Array<String>, commandFiledPrefix: String, commandErrorPrefix: String): CommandResult {
     return try {
         withContext(Dispatchers.IO) {
             val processBuilder = ProcessBuilder(*command)
@@ -16,10 +16,10 @@ suspend fun executeCommand(command: Array<String>): CommandResult {
             if (process.exitValue() == 0) {
                 CommandResult(output, null)
             } else {
-                CommandResult(null, "Command failed with exit code: ${process.exitValue()}")
+                CommandResult(null, "$commandFiledPrefix: ${process.exitValue()}")
             }
         }
     } catch (e: Exception) {
-        CommandResult(null, "Error executing command: ${e.message}")
+        CommandResult(null, "$commandErrorPrefix: ${e.message}")
     }
 }

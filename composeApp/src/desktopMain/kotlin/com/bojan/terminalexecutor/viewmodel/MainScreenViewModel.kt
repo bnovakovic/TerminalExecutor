@@ -70,10 +70,10 @@ class MainScreenViewModel : ViewModel() {
         commandToExecute = commands.toTypedArray()
     }
 
-    fun execute() {
+    fun execute(commandFiledPrefix: String, commandErrorPrefix: String) {
         _uiState.value = _uiState.value.copy(executeState = ExecuteState.WORKING, allowExecution = false, outputText = "")
         viewModelScope.launch {
-            executeCommand(commandToExecute)
+            executeCommand(commandToExecute, commandFiledPrefix, commandErrorPrefix)
                 .onSuccess {
                     _uiState.value = _uiState.value.copy(outputText = it, executeState = ExecuteState.OK, allowExecution = true)
                 }
@@ -83,12 +83,12 @@ class MainScreenViewModel : ViewModel() {
         }
     }
 
-    fun export(file: File) {
+    fun export(file: File, successMessage: String) {
         _uiState.value = _uiState.value.copy(allowExecution = false)
         viewModelScope.launch {
             exportList(uiState.value.items, file)
                 .onSuccess {
-                    _uiState.value = _uiState.value.copy(outputText = "Export success")
+                    _uiState.value = _uiState.value.copy(outputText = successMessage)
                 }
                 .onFailure {
                     _uiState.value = _uiState.value.copy(outputText = it.message?: "")
@@ -97,11 +97,11 @@ class MainScreenViewModel : ViewModel() {
         }
     }
 
-    fun import(file: File) {
+    fun import(file: File, successMessage: String) {
         viewModelScope.launch {
             importList(file)
                 .onSuccess {
-                    _uiState.value = _uiState.value.copy(items = it, command = "", outputText = "Import success")
+                    _uiState.value = _uiState.value.copy(items = it, command = "", outputText = successMessage)
                 }
                 .onFailure {
                     _uiState.value = _uiState.value.copy(outputText = it.message?: "", command = "")

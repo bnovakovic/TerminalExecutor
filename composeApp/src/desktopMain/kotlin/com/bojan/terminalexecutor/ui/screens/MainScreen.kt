@@ -36,14 +36,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.Role.Companion.RadioButton
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.Popup
 import com.bojan.terminalexecutor.constants.JSON_EXTENSION
 import com.bojan.terminalexecutor.enum.ExecuteState
 import com.bojan.terminalexecutor.enum.MainScreenDialog
@@ -54,14 +51,44 @@ import com.bojan.terminalexecutor.ui.controls.CommandListGroup
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.viewmodel.MainScreenViewModel
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import terminalexecutor.composeapp.generated.resources.Res
+import terminalexecutor.composeapp.generated.resources.cancel
+import terminalexecutor.composeapp.generated.resources.command
+import terminalexecutor.composeapp.generated.resources.command_error_prefix
+import terminalexecutor.composeapp.generated.resources.command_failed_prefix
 import terminalexecutor.composeapp.generated.resources.copy_icon
+import terminalexecutor.composeapp.generated.resources.execute
+import terminalexecutor.composeapp.generated.resources.export
+import terminalexecutor.composeapp.generated.resources.export_success_message
+import terminalexecutor.composeapp.generated.resources.file_already_exist
+import terminalexecutor.composeapp.generated.resources.file_not_found_message
+import terminalexecutor.composeapp.generated.resources.file_not_found_title
+import terminalexecutor.composeapp.generated.resources.group
+import terminalexecutor.composeapp.generated.resources.import
+import terminalexecutor.composeapp.generated.resources.import_success_message
+import terminalexecutor.composeapp.generated.resources.item_type
+import terminalexecutor.composeapp.generated.resources.name
+import terminalexecutor.composeapp.generated.resources.ok
+import terminalexecutor.composeapp.generated.resources.open_file
+import terminalexecutor.composeapp.generated.resources.output
+import terminalexecutor.composeapp.generated.resources.save_configuration_file
 import java.io.File
 import javax.swing.filechooser.FileNameExtensionFilter
 
 @Composable
 fun MainScreen(viewModel: MainScreenViewModel) {
     val uiState by viewModel.uiState.collectAsState()
+    val exportTitle = stringResource(Res.string.save_configuration_file)
+    val fileExistText = stringResource(Res.string.file_already_exist)
+    val fileExistTitle = stringResource(Res.string.file_already_exist)
+    val openFileTitle = stringResource(Res.string.open_file)
+    val fileNotFoundMessage = stringResource(Res.string.file_not_found_message)
+    val fileNotFoundTitle = stringResource(Res.string.file_not_found_title)
+    val exportSuccessMessage = stringResource(Res.string.export_success_message)
+    val importSuccessMessage = stringResource(Res.string.import_success_message)
+    val commandFailPrefix = stringResource(Res.string.command_failed_prefix)
+    val commandErrorPrefix = stringResource(Res.string.command_error_prefix)
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.surface).padding(8.dp)) {
         ItemList(
             items = uiState.items,
@@ -78,41 +105,50 @@ fun MainScreen(viewModel: MainScreenViewModel) {
             executeState = uiState.executeState,
             onExport = {
                 saveFileSwingChooser(
-                    title = "Save configuration file",
+                    title = exportTitle,
                     currentDir = File(""),
                     initialFileName = "TerminalExecutorConfiguration.$JSON_EXTENSION",
-                    onFileConfirm = { viewModel.export(it) },
+                    onFileConfirm = { viewModel.export(it, exportSuccessMessage) },
                     fileNameExtensionFilter = FileNameExtensionFilter("JSON File (.$JSON_EXTENSION)", JSON_EXTENSION),
-                    overwriteMessage = "File already exists. Overwrite?",
-                    overwriteTitle = "Overwrite file?"
+                    overwriteMessage = fileExistText,
+                    overwriteTitle = fileExistTitle
                 )
             },
-            onImport = { openFileSwingChooser(
-                title = "Open file swing chooser",
-                currentDir = File(""),
-                initialFileName = "TerminalExecutorConfiguration.$JSON_EXTENSION",
-                onFileConfirm = { viewModel.import(it) },
-                fileNameExtensionFilter = FileNameExtensionFilter("JSON File (.$JSON_EXTENSION)", JSON_EXTENSION),
-                fileDoesNotExistTitle = "File not found",
-                fileDoesNotExistMessage = "File not found. Check file name and try again"
-            ) }
-        ) { viewModel.execute() }
+            onImport = {
+                openFileSwingChooser(
+                    title = openFileTitle,
+                    currentDir = File(""),
+                    initialFileName = "TerminalExecutorConfiguration.$JSON_EXTENSION",
+                    onFileConfirm = { viewModel.import(it, importSuccessMessage) },
+                    fileNameExtensionFilter = FileNameExtensionFilter("JSON File (.$JSON_EXTENSION)", JSON_EXTENSION),
+                    fileDoesNotExistTitle = fileNotFoundTitle,
+                    fileDoesNotExistMessage = fileNotFoundMessage
+                )
+            }
+        ) {
+            viewModel.execute(
+                commandFailPrefix,
+                commandErrorPrefix,
+            )
+        }
     }
     when (uiState.mainScreenDialog) {
         MainScreenDialog.NONE -> {}
-        MainScreenDialog.ADD_ITEM -> { Dialog(onDismissRequest = {}) { AddItemScreen(onCancel = { viewModel.hideDialogue() }, onConfirm = {}) } }
+        MainScreenDialog.ADD_ITEM -> {
+            Dialog(onDismissRequest = {}) { AddItemScreen(onCancel = { viewModel.hideDialogue() }, onConfirm = {}) }
+        }
     }
 }
 
 @Composable
 fun AddItemScreen(modifier: Modifier = Modifier, onCancel: () -> Unit, onConfirm: () -> Unit) {
     Column(modifier = Modifier.background(MaterialTheme.colors.surface).padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        val radioOptions = listOf("Command", "Group")
+        val radioOptions = listOf(stringResource(Res.string.command), stringResource(Res.string.group))
         val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
-        Text("Item type")
+        Text(stringResource(Res.string.item_type))
         Spacer(modifier = Modifier.height(4.dp))
-        Row (modifier.selectableGroup().thinOutline()) {
-            radioOptions.forEachIndexed  { index, text ->
+        Row(modifier.selectableGroup().thinOutline()) {
+            radioOptions.forEach { text ->
                 Row(
                     Modifier
                         .height(56.dp)
@@ -145,10 +181,10 @@ fun AddItemScreen(modifier: Modifier = Modifier, onCancel: () -> Unit, onConfirm
             onValueChange = { nameText = it },
             modifier = Modifier.width(800.dp).thinOutline(),
             readOnly = false,
-            label = { Text("Name") },
+            label = { Text(stringResource(Res.string.name)) },
             singleLine = true,
 
-        )
+            )
 
         Spacer(modifier.height(8.dp))
 
@@ -159,7 +195,7 @@ fun AddItemScreen(modifier: Modifier = Modifier, onCancel: () -> Unit, onConfirm
                 onValueChange = { commandText = it },
                 modifier = Modifier.width(800.dp).thinOutline(),
                 readOnly = false,
-                label = { Text("Command") },
+                label = { Text(stringResource(Res.string.command)) },
             )
 
             Spacer(modifier.height(8.dp))
@@ -168,11 +204,11 @@ fun AddItemScreen(modifier: Modifier = Modifier, onCancel: () -> Unit, onConfirm
         Row {
             Spacer(modifier = Modifier.weight(1.0f))
             Button(onClick = onCancel) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(onClick = onConfirm) {
-                Text("OK")
+                Text(stringResource(Res.string.ok))
             }
         }
     }
@@ -190,7 +226,10 @@ fun ItemList(items: List<ListItemGroupUiState>, modifier: Modifier, onAddItem: (
 
             }
         }
-        VerticalScrollbar(adapter = rememberScrollbarAdapter(scrollState = listState), modifier = Modifier.width(14.dp).padding(horizontal = 2.dp, vertical = 1.dp))
+        VerticalScrollbar(
+            adapter = rememberScrollbarAdapter(scrollState = listState),
+            modifier = Modifier.width(14.dp).padding(horizontal = 2.dp, vertical = 1.dp)
+        )
     }
 }
 
@@ -212,7 +251,7 @@ fun ActionItems(
             onValueChange = {},
             modifier = Modifier.height(100.dp).fillMaxWidth().thinOutline(),
             readOnly = true,
-            label = { Text("Command") },
+            label = { Text(stringResource(Res.string.command)) },
             trailingIcon = {
                 IconButton(onClick = { clipboardManager.setText(buildAnnotatedString { append(command) }) }) {
                     Icon(painter = painterResource(Res.drawable.copy_icon), contentDescription = null)
@@ -225,7 +264,7 @@ fun ActionItems(
             onValueChange = {},
             modifier = Modifier.weight(1.0f).fillMaxWidth().thinOutline(),
             readOnly = true,
-            label = { Text("Output") },
+            label = { Text(stringResource(Res.string.output)) },
             trailingIcon = {
                 IconButton(onClick = { clipboardManager.setText(buildAnnotatedString { append(output) }) }) {
                     Icon(painter = painterResource(Res.drawable.copy_icon), contentDescription = null)
@@ -233,24 +272,37 @@ fun ActionItems(
             }
         )
         Spacer(modifier = Modifier.height(10.dp))
-        Row (verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Button(onClick = { onExecute() }, enabled = allowExecution) {
-                Text("Execute")
+                Text(stringResource(Res.string.execute))
             }
             Spacer(modifier = Modifier.width(8.dp))
             when (executeState) {
-                ExecuteState.NONE -> { }
-                ExecuteState.WORKING -> { CircularProgressIndicator(modifier = Modifier.width(32.dp).padding(0.dp), color = MaterialTheme.colors.secondary) }
-                ExecuteState.ERROR -> { Icon(Icons.Default.Warning, contentDescription = null, modifier = Modifier.size(32.dp), tint = MaterialTheme.colors.error) }
-                ExecuteState.OK -> { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(32.dp), MaterialTheme.colors.primary) }
+                ExecuteState.NONE -> {}
+                ExecuteState.WORKING -> {
+                    CircularProgressIndicator(modifier = Modifier.width(32.dp).padding(0.dp), color = MaterialTheme.colors.secondary)
+                }
+
+                ExecuteState.ERROR -> {
+                    Icon(
+                        Icons.Default.Warning,
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = MaterialTheme.colors.error
+                    )
+                }
+
+                ExecuteState.OK -> {
+                    Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(32.dp), MaterialTheme.colors.primary)
+                }
             }
             Spacer(modifier = Modifier.weight(1.0f))
             Button(onClick = onImport) {
-                Text("Import")
+                Text(stringResource(Res.string.import))
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(onClick = onExport) {
-                Text("Export")
+                Text(stringResource(Res.string.export))
             }
 
         }

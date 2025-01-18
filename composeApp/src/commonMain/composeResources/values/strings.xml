@@ -1,0 +1,22 @@
+<resources>
+    <string name="export">Export</string>
+    <string name="import">Import</string>
+    <string name="execute">Execute</string>
+    <string name="command">Command</string>
+    <string name="group">Group</string>
+    <string name="output">Output</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="name">Name</string>
+    <string name="item_type">Item type</string>
+    <string name="save_configuration_file">Save configuration file</string>
+    <string name="file_already_exist">File already exists. Overwrite?</string>
+    <string name="overwrite_file">Overwrite file?</string>
+    <string name="open_file">Open file</string>
+    <string name="file_not_found_title">File not found</string>
+    <string name="file_not_found_message">File not found. Check file name and try again</string>
+    <string name="import_success_message">Import success</string>
+    <string name="export_success_message">Export success</string>
+    <string name="command_failed_prefix">Command failed with exit code</string>
+    <string name="command_error_prefix">Error executing command</string>
+</resources>
