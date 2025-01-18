@@ -11,7 +11,9 @@ class MainScreenViewModel {
         MainScreenUiState(
             items = listOf(
                 ListItemUiState("Adb devices", listOf("adb", "devices"), false, false),
-                ListItemUiState("Git status", listOf("git", "status"), false, false)
+                ListItemUiState("Git status", listOf("git", "status"), false, false),
+                ListItemUiState("Adb Kill Server", listOf("adb", "kill-server"), false, false),
+                ListItemUiState("Adb Start Server", listOf("adb", "start-server"), false, false),
             ),
             command = "",
             allowExecution = false,
