@@ -1,10 +1,9 @@
-package com.bojan.terminalexecutor.exporter
+package com.bojan.terminalexecutor.configmanagers
 
 import com.bojan.terminalexecutor.constants.JSON_EXTENSION
 import com.bojan.terminalexecutor.ktx.toListItemGroupData
-import com.bojan.terminalexecutor.seriazible.ListItemGroupData
+import com.bojan.terminalexecutor.seriazible.ItemList
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -16,6 +15,3 @@ suspend fun exportList(itemData: List<ListItemGroupUiState>, file: File) {
     val jsonString = json.encodeToString(converted)
     finalFile.writeText(jsonString)
 }
-
-@Serializable
-data class ItemList(val items: List<ListItemGroupData>)

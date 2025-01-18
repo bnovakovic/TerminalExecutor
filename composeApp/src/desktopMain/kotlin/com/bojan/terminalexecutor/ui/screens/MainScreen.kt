@@ -37,6 +37,7 @@ import com.bojan.terminalexecutor.constants.JSON_EXTENSION
 import com.bojan.terminalexecutor.ktx.thinOutline
 import com.bojan.terminalexecutor.ui.controls.CommandListGroup
 import com.bojan.terminalexecutor.enum.ExecuteState
+import com.bojan.terminalexecutor.swing.openFileSwingChooser
 import com.bojan.terminalexecutor.swing.saveFileSwingChooser
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.viewmodel.MainScreenViewModel
@@ -73,7 +74,15 @@ fun MainScreen(viewModel: MainScreenViewModel) {
                     overwriteTitle = "Overwrite file?"
                 )
             },
-            onImport = { viewModel.import() }
+            onImport = { openFileSwingChooser(
+                title = "Open file swing chooser",
+                currentDir = File(""),
+                initialFileName = "TerminalExecutorConfiguration.$JSON_EXTENSION",
+                onFileConfirm = { viewModel.import(it) },
+                fileNameExtensionFilter = FileNameExtensionFilter("JSON File (.$JSON_EXTENSION)", JSON_EXTENSION),
+                fileDoesNotExistTitle = "File not found",
+                fileDoesNotExistMessage = "File not found. Check file name and try again"
+            ) }
         ) { viewModel.execute() }
     }
 }

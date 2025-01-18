@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bojan.terminalexecutor.commandexecutor.executeCommand
 import com.bojan.terminalexecutor.enum.ExecuteState
-import com.bojan.terminalexecutor.exporter.exportList
+import com.bojan.terminalexecutor.configmanagers.exportList
+import com.bojan.terminalexecutor.configmanagers.importList
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import com.bojan.terminalexecutor.ui.uistates.MainScreenUiState
@@ -15,38 +16,39 @@ import java.io.File
 
 
 class MainScreenViewModel : ViewModel() {
-    private val _uiState = MutableStateFlow(
-        MainScreenUiState(
+    val exampleItems = listOf(
+        ListItemGroupUiState(
+            text = "ADB",
             items = listOf(
+                ListItemUiState("ADB list devices", listOf("adb", "devices")),
+                ListItemUiState("Wrong ADB command", listOf("adb", "programs")),
+                ListItemUiState("Wrong adb executable", listOf("adbe", "devices")),
+            ),
+            children = listOf(
                 ListItemGroupUiState(
-                    text = "ADB",
+                    text = "Server",
                     items = listOf(
-                        ListItemUiState("ADB list devices", listOf("adb", "devices")),
-                        ListItemUiState("Wrong ADB command", listOf("adb", "programs")),
-                        ListItemUiState("Wrong adb executable", listOf("adbe", "devices")),
-                    ),
-                    children = listOf(
-                        ListItemGroupUiState(
-                            text = "Server",
-                            items = listOf(
-                                ListItemUiState("ADB Kill Server", listOf("adb", "kill-server")),
-                                ListItemUiState("ADB Start Server", listOf("adb", "start-server")),
-                            ),
-                            children = emptyList()
-                        )
-                    )
-                ),
-                ListItemGroupUiState(
-                    text = "GIT",
-                    items = listOf(
-                        ListItemUiState("Git status", listOf("git", "status")),
-                        ListItemUiState("Git read remote config", listOf("git", "config", "--get", "remote.origin.url")),
-                        ListItemUiState("Git show remote", listOf("git", "remote", "show", "origin")),
+                        ListItemUiState("ADB Kill Server", listOf("adb", "kill-server")),
+                        ListItemUiState("ADB Start Server", listOf("adb", "start-server")),
                     ),
                     children = emptyList()
                 )
-
+            )
+        ),
+        ListItemGroupUiState(
+            text = "GIT",
+            items = listOf(
+                ListItemUiState("Git status", listOf("git", "status")),
+                ListItemUiState("Git read remote config", listOf("git", "config", "--get", "remote.origin.url")),
+                ListItemUiState("Git show remote", listOf("git", "remote", "show", "origin")),
             ),
+            children = emptyList()
+        )
+
+    )
+    private val _uiState = MutableStateFlow(
+        MainScreenUiState(
+            items = emptyList(),
             command = "",
             allowExecution = false,
             outputText = "",
@@ -87,7 +89,15 @@ class MainScreenViewModel : ViewModel() {
         }
     }
 
-    fun import() {
-
+    fun import(file: File) {
+        viewModelScope.launch {
+            importList(file)
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(items = it, command = "", outputText = "Import success")
+                }
+                .onFailure {
+                    _uiState.value = _uiState.value.copy(outputText = it.message?: "", command = "")
+                }
+        }
     }
 }
