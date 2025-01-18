@@ -245,9 +245,18 @@ fun ItemList(items: List<ListItemGroupUiState>, modifier: Modifier, onAddItem: (
         LazyColumn(state = listState, modifier = Modifier.weight(1.0f)) {
             items(items) { item ->
                 item.apply {
-                    CommandListGroup(item.id, text, this.items, children, Modifier, { onAddItem(it) }, onSelected)
+                    CommandListGroup(
+                        id = item.id,
+                        text = text,
+                        items = this.items,
+                        children = children,
+                        modifier = Modifier,
+                        onAddItem = {
+                            onAddItem(it)
+                        },
+                        onItemSelected = onSelected
+                    )
                 }
-
             }
         }
         VerticalScrollbar(

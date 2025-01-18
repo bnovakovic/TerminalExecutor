@@ -56,15 +56,27 @@ fun CommandListGroup(
             Spacer(modifier = Modifier.width(8.dp))
             Text(text)
             Spacer(modifier = Modifier.width(8.dp))
-            Image(painter = painterResource(Res.drawable.add), contentDescription = null, modifier = Modifier.size(16.dp).clickable { onAddItem(id) })
+            Image(
+                painter = painterResource(Res.drawable.add),
+                contentDescription = null,
+                modifier = Modifier.size(16.dp).clickable { onAddItem(id) })
         }
         if (expanded) {
             items.forEach {
                 CommandListItem(it.name, Modifier.padding(start = 24.dp)) { onItemSelected(it.commands) }
             }
             children.forEach {
-                val thisId = it.id
-                CommandListGroup(thisId, it.text, it.items, it.children, Modifier.padding(start = 24.dp), { onAddItem(thisId) }, onItemSelected)
+                CommandListGroup(
+                    id = it.id,
+                    text = it.text,
+                    items = it.items,
+                    children = it.children,
+                    modifier = Modifier.padding(start = 24.dp),
+                    onAddItem = { thisId ->
+                        onAddItem(thisId)
+                    },
+                    onItemSelected = onItemSelected
+                )
             }
         }
     }
