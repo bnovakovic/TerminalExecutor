@@ -7,6 +7,7 @@ import com.bojan.terminalexecutor.configmanagers.exportList
 import com.bojan.terminalexecutor.configmanagers.importList
 import com.bojan.terminalexecutor.enum.ExecuteState
 import com.bojan.terminalexecutor.enum.MainScreenDialog
+import com.bojan.terminalexecutor.ui.uistates.ItemsUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import com.bojan.terminalexecutor.ui.uistates.MainScreenUiState
@@ -17,8 +18,9 @@ import java.io.File
 
 
 class MainScreenViewModel : ViewModel() {
-    val exampleItems = listOf(
+    private val exampleItems = listOf(
         ListItemGroupUiState(
+            id = "0",
             text = "ADB",
             items = listOf(
                 ListItemUiState("ADB list devices", listOf("adb", "devices")),
@@ -27,6 +29,7 @@ class MainScreenViewModel : ViewModel() {
             ),
             children = listOf(
                 ListItemGroupUiState(
+                    id = "0,0",
                     text = "Server",
                     items = listOf(
                         ListItemUiState("ADB Kill Server", listOf("adb", "kill-server")),
@@ -37,6 +40,7 @@ class MainScreenViewModel : ViewModel() {
             )
         ),
         ListItemGroupUiState(
+            id = "1",
             text = "GIT",
             items = listOf(
                 ListItemUiState("Git status", listOf("git", "status")),
@@ -49,7 +53,7 @@ class MainScreenViewModel : ViewModel() {
     )
     private val _uiState = MutableStateFlow(
         MainScreenUiState(
-            items = exampleItems,
+            items = ItemsUiState(emptyList()),
             command = "",
             allowExecution = false,
             outputText = "",
@@ -86,7 +90,7 @@ class MainScreenViewModel : ViewModel() {
     fun export(file: File, successMessage: String) {
         _uiState.value = _uiState.value.copy(allowExecution = false)
         viewModelScope.launch {
-            exportList(uiState.value.items, file)
+            exportList(uiState.value.items.items, file)
                 .onSuccess {
                     _uiState.value = _uiState.value.copy(outputText = successMessage)
                 }
@@ -101,7 +105,7 @@ class MainScreenViewModel : ViewModel() {
         viewModelScope.launch {
             importList(file)
                 .onSuccess {
-                    _uiState.value = _uiState.value.copy(items = it, command = "", outputText = successMessage)
+                    _uiState.value = _uiState.value.copy(items = ItemsUiState(it), command = "", outputText = successMessage)
                 }
                 .onFailure {
                     _uiState.value = _uiState.value.copy(outputText = it.message?: "", command = "")
@@ -110,7 +114,8 @@ class MainScreenViewModel : ViewModel() {
     }
 
     fun showAddItemDialogue() {
-        _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.ADD_ITEM)
+        //_uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.ADD_ITEM)
+        println(_uiState.value.items)
     }
 
     fun hideDialogue() {

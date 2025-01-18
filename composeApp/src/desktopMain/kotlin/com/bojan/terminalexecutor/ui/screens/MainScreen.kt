@@ -91,7 +91,7 @@ fun MainScreen(viewModel: MainScreenViewModel) {
     val commandErrorPrefix = stringResource(Res.string.command_error_prefix)
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.surface).padding(8.dp)) {
         ItemList(
-            items = uiState.items,
+            items = uiState.items.items,
             modifier = Modifier.weight(0.5f),
             onAddItem = { viewModel.showAddItemDialogue() },
             onSelected = { viewModel.itemSelected(it) }

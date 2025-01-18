@@ -4,7 +4,7 @@ import com.bojan.terminalexecutor.enum.ExecuteState
 import com.bojan.terminalexecutor.enum.MainScreenDialog
 
 data class MainScreenUiState(
-    val items: List<ListItemGroupUiState>,
+    val items: ItemsUiState,
     val command: String,
     val allowExecution: Boolean,
     val outputText: String,

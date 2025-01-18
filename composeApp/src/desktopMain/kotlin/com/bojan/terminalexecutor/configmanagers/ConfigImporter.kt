@@ -9,7 +9,7 @@ import java.io.File
 suspend fun importList(file: File): Result<List<ListItemGroupUiState>> {
     return try {
         val imported = Json.decodeFromString<ItemList>(file.readText())
-        val uiState = imported.items.map { it.toListItemGroupUiState() }
+        val uiState = imported.items.mapIndexed { index, listItemGroupData ->  listItemGroupData.toListItemGroupUiState("$index") }
         Result.success(uiState)
     } catch (e: Exception) {
         e.printStackTrace()
