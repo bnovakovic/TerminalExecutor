@@ -33,14 +33,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
+import com.bojan.terminalexecutor.constants.JSON_EXTENSION
 import com.bojan.terminalexecutor.ktx.thinOutline
 import com.bojan.terminalexecutor.ui.controls.CommandListGroup
 import com.bojan.terminalexecutor.enum.ExecuteState
+import com.bojan.terminalexecutor.swing.saveFileSwingChooser
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.viewmodel.MainScreenViewModel
 import org.jetbrains.compose.resources.painterResource
 import terminalexecutor.composeapp.generated.resources.Res
 import terminalexecutor.composeapp.generated.resources.copy_icon
+import java.io.File
+import javax.swing.filechooser.FileNameExtensionFilter
 
 @Composable
 fun MainScreen(viewModel: MainScreenViewModel) {
@@ -57,7 +61,19 @@ fun MainScreen(viewModel: MainScreenViewModel) {
             command = uiState.command,
             output = uiState.outputText,
             allowExecution = uiState.allowExecution,
-            executeState = uiState.executeState
+            executeState = uiState.executeState,
+            onExport = {
+                saveFileSwingChooser(
+                    title = "Save configuration file",
+                    currentDir = File(""),
+                    initialFileName = "TerminalExecutorConfiguration.$JSON_EXTENSION",
+                    onFileConfirm = { viewModel.export(it) },
+                    fileNameExtensionFilter = FileNameExtensionFilter("JSON File (.$JSON_EXTENSION)", JSON_EXTENSION),
+                    overwriteMessage = "File already exists. Overwrite?",
+                    overwriteTitle = "Overwrite file?"
+                )
+            },
+            onImport = { viewModel.import() }
         ) { viewModel.execute() }
     }
 }
@@ -85,7 +101,9 @@ fun ActionItems(
     output: String,
     allowExecution: Boolean,
     executeState: ExecuteState,
-    onExecute: () -> Unit
+    onExport: () -> Unit,
+    onImport: () -> Unit,
+    onExecute: () -> Unit,
 ) {
     val clipboardManager = LocalClipboardManager.current
     Column(modifier = Modifier.fillMaxWidth().then(modifier)) {
@@ -127,11 +145,11 @@ fun ActionItems(
                 ExecuteState.OK -> { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(32.dp), MaterialTheme.colors.primary) }
             }
             Spacer(modifier = Modifier.weight(1.0f))
-            Button(onClick = {}) {
+            Button(onClick = onImport) {
                 Text("Import")
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = {}) {
+            Button(onClick = onExport) {
                 Text("Export")
             }
 

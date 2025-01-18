@@ -4,12 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bojan.terminalexecutor.commandexecutor.executeCommand
 import com.bojan.terminalexecutor.enum.ExecuteState
+import com.bojan.terminalexecutor.exporter.exportList
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import com.bojan.terminalexecutor.ui.uistates.MainScreenUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.File
 
 
 class MainScreenViewModel : ViewModel() {
@@ -75,5 +77,17 @@ class MainScreenViewModel : ViewModel() {
                     _uiState.value = _uiState.value.copy(outputText = it, executeState = ExecuteState.ERROR, allowExecution = true)
                 }
         }
+    }
+
+    fun export(file: File) {
+        _uiState.value = _uiState.value.copy(allowExecution = false)
+        viewModelScope.launch {
+            exportList(uiState.value.items, file)
+            _uiState.value = _uiState.value.copy(allowExecution = true)
+        }
+    }
+
+    fun import() {
+
     }
 }
