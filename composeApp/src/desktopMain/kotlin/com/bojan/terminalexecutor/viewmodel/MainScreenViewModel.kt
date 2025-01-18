@@ -6,6 +6,7 @@ import com.bojan.terminalexecutor.commandexecutor.executeCommand
 import com.bojan.terminalexecutor.configmanagers.exportList
 import com.bojan.terminalexecutor.configmanagers.importList
 import com.bojan.terminalexecutor.enum.ExecuteState
+import com.bojan.terminalexecutor.enum.MainScreenDialog
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import com.bojan.terminalexecutor.ui.uistates.MainScreenUiState
@@ -48,11 +49,12 @@ class MainScreenViewModel : ViewModel() {
     )
     private val _uiState = MutableStateFlow(
         MainScreenUiState(
-            items = emptyList(),
+            items = exampleItems,
             command = "",
             allowExecution = false,
             outputText = "",
-            executeState = ExecuteState.NONE
+            executeState = ExecuteState.NONE,
+            mainScreenDialog = MainScreenDialog.NONE
         )
     )
     val uiState = _uiState.asStateFlow()
@@ -105,5 +107,13 @@ class MainScreenViewModel : ViewModel() {
                     _uiState.value = _uiState.value.copy(outputText = it.message?: "", command = "")
                 }
         }
+    }
+
+    fun showAddItemDialogue() {
+        _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.ADD_ITEM)
+    }
+
+    fun hideDialogue() {
+        _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.NONE)
     }
 }

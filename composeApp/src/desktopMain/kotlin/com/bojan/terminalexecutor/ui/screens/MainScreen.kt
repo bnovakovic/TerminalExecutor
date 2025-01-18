@@ -15,11 +15,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
@@ -28,13 +31,22 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.Role.Companion.RadioButton
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.Popup
 import com.bojan.terminalexecutor.constants.JSON_EXTENSION
 import com.bojan.terminalexecutor.enum.ExecuteState
+import com.bojan.terminalexecutor.enum.MainScreenDialog
 import com.bojan.terminalexecutor.ktx.thinOutline
 import com.bojan.terminalexecutor.swing.openFileSwingChooser
 import com.bojan.terminalexecutor.swing.saveFileSwingChooser
@@ -54,6 +66,7 @@ fun MainScreen(viewModel: MainScreenViewModel) {
         ItemList(
             items = uiState.items,
             modifier = Modifier.weight(0.5f),
+            onAddItem = { viewModel.showAddItemDialogue() },
             onSelected = { viewModel.itemSelected(it) }
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -85,16 +98,94 @@ fun MainScreen(viewModel: MainScreenViewModel) {
             ) }
         ) { viewModel.execute() }
     }
+    when (uiState.mainScreenDialog) {
+        MainScreenDialog.NONE -> {}
+        MainScreenDialog.ADD_ITEM -> { Dialog(onDismissRequest = {}) { AddItemScreen(onCancel = { viewModel.hideDialogue() }, onConfirm = {}) } }
+    }
 }
 
 @Composable
-fun ItemList(items: List<ListItemGroupUiState>, modifier: Modifier, onSelected: (List<String>) -> Unit) {
+fun AddItemScreen(modifier: Modifier = Modifier, onCancel: () -> Unit, onConfirm: () -> Unit) {
+    Column(modifier = Modifier.background(MaterialTheme.colors.surface).padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        val radioOptions = listOf("Command", "Group")
+        val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
+        Text("Item type")
+        Spacer(modifier = Modifier.height(4.dp))
+        Row (modifier.selectableGroup().thinOutline()) {
+            radioOptions.forEachIndexed  { index, text ->
+                Row(
+                    Modifier
+                        .height(56.dp)
+                        .width(160.dp)
+                        .selectable(
+                            selected = (text == selectedOption),
+                            onClick = { onOptionSelected(text) },
+                            role = Role.RadioButton
+                        )
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = (text == selectedOption),
+                        onClick = null
+                    )
+                    Text(
+                        text = text,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier.height(8.dp))
+
+        var nameText by remember { mutableStateOf("") }
+        TextField(
+            value = nameText,
+            onValueChange = { nameText = it },
+            modifier = Modifier.width(800.dp).thinOutline(),
+            readOnly = false,
+            label = { Text("Name") },
+            singleLine = true,
+
+        )
+
+        Spacer(modifier.height(8.dp))
+
+        if (radioOptions.indexOf(selectedOption) == 0) {
+            var commandText by remember { mutableStateOf("") }
+            TextField(
+                value = commandText,
+                onValueChange = { commandText = it },
+                modifier = Modifier.width(800.dp).thinOutline(),
+                readOnly = false,
+                label = { Text("Command") },
+            )
+
+            Spacer(modifier.height(8.dp))
+        }
+
+        Row {
+            Spacer(modifier = Modifier.weight(1.0f))
+            Button(onClick = onCancel) {
+                Text("Cancel")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(onClick = onConfirm) {
+                Text("OK")
+            }
+        }
+    }
+}
+
+@Composable
+fun ItemList(items: List<ListItemGroupUiState>, modifier: Modifier, onAddItem: () -> Unit, onSelected: (List<String>) -> Unit) {
     val listState = rememberLazyListState()
     Row(modifier = Modifier.fillMaxWidth().thinOutline().then(modifier)) {
         LazyColumn(state = listState, modifier = Modifier.weight(1.0f)) {
             items(items) { item ->
                 item.apply {
-                    CommandListGroup(text, this.items, children, Modifier, onSelected)
+                    CommandListGroup(text, this.items, children, Modifier, onAddItem, onSelected)
                 }
 
             }

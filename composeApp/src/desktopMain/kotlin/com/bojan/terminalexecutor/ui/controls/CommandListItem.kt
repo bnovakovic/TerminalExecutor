@@ -1,11 +1,13 @@
 package com.bojan.terminalexecutor.ui.controls
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -23,6 +25,7 @@ import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import org.jetbrains.compose.resources.painterResource
 import terminalexecutor.composeapp.generated.resources.Res
+import terminalexecutor.composeapp.generated.resources.add
 import terminalexecutor.composeapp.generated.resources.arrow_down
 import terminalexecutor.composeapp.generated.resources.arrow_right
 
@@ -39,20 +42,12 @@ fun CommandListItem(
 }
 
 @Composable
-fun getSelectableColor(isSelected: Boolean): Color {
-    return if (isSelected) {
-        MaterialTheme.colors.secondary
-    } else {
-        Color.Transparent
-    }
-}
-
-@Composable
 fun CommandListGroup(
     text: String,
     items: List<ListItemUiState>,
     children: List<ListItemGroupUiState>,
     modifier: Modifier = Modifier,
+    onAddItem: () -> Unit,
     onItemSelected: (List<String>) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -61,13 +56,15 @@ fun CommandListGroup(
             Icon(painterResource(getIcon(expanded)), contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
             Text(text)
+            Spacer(modifier = Modifier.width(8.dp))
+            Image(painter = painterResource(Res.drawable.add), contentDescription = null, modifier = Modifier.size(16.dp).clickable { onAddItem() })
         }
         if (expanded) {
             items.forEach {
                 CommandListItem(it.name, Modifier.padding(start = 24.dp)) { onItemSelected(it.commands) }
             }
             children.forEach {
-                CommandListGroup(it.text, it.items, it.children, Modifier.padding(start = 24.dp), onItemSelected)
+                CommandListGroup(it.text, it.items, it.children, Modifier.padding(start = 24.dp), onAddItem, onItemSelected)
             }
         }
     }
