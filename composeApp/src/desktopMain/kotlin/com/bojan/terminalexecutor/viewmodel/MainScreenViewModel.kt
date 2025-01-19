@@ -118,7 +118,11 @@ class MainScreenViewModel(
     }
 
     fun showAddItemDialogue(parentId: String) {
-        _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.ADD_ITEM)
+        if (parentId != "") {
+            _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.ADD_ANY_ITEM)
+        } else {
+            _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.ADD_GROUP)
+        }
         storedParentId = parentId
     }
 

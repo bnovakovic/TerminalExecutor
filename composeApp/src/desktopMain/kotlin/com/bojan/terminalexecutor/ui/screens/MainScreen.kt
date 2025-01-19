@@ -57,11 +57,13 @@ import com.bojan.terminalexecutor.viewmodel.MainScreenViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import terminalexecutor.composeapp.generated.resources.Res
+import terminalexecutor.composeapp.generated.resources.add
 import terminalexecutor.composeapp.generated.resources.cancel
 import terminalexecutor.composeapp.generated.resources.command
 import terminalexecutor.composeapp.generated.resources.command_error_prefix
 import terminalexecutor.composeapp.generated.resources.command_failed_prefix
 import terminalexecutor.composeapp.generated.resources.copy_icon
+import terminalexecutor.composeapp.generated.resources.enter_group_name
 import terminalexecutor.composeapp.generated.resources.execute
 import terminalexecutor.composeapp.generated.resources.export
 import terminalexecutor.composeapp.generated.resources.export_success_message
@@ -138,10 +140,22 @@ fun MainScreen(viewModel: MainScreenViewModel) {
     }
     when (uiState.mainScreenDialog) {
         MainScreenDialog.NONE -> {}
-        MainScreenDialog.ADD_ITEM -> {
+        MainScreenDialog.ADD_ANY_ITEM -> {
             Dialog(onDismissRequest = {}) {
                 AddItemScreen(
                     randomIdGenerator = viewModel.idGenerator,
+                    groupOnly = false,
+                    onCancel = { viewModel.hideDialogue() },
+                    onAddItem = { viewModel.addItem(it) },
+                    onAddGroup = { viewModel.addGroup(it) }
+                )
+            }
+        }
+        MainScreenDialog.ADD_GROUP -> {
+            Dialog(onDismissRequest = {}) {
+                AddItemScreen(
+                    randomIdGenerator = viewModel.idGenerator,
+                    groupOnly = true,
                     onCancel = { viewModel.hideDialogue() },
                     onAddItem = { viewModel.addItem(it) },
                     onAddGroup = { viewModel.addGroup(it) }
@@ -155,6 +169,7 @@ fun MainScreen(viewModel: MainScreenViewModel) {
 fun AddItemScreen(
     modifier: Modifier = Modifier,
     randomIdGenerator: RandomIdGenerator,
+    groupOnly: Boolean,
     onCancel: () -> Unit,
     onAddItem: (ListItemUiState) -> Unit,
     onAddGroup: (ListItemGroupUiState) -> Unit
@@ -163,37 +178,52 @@ fun AddItemScreen(
         val radioOptions = listOf(stringResource(Res.string.group), stringResource(Res.string.command))
         val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
         val addingCommand = radioOptions.indexOf(selectedOption) == 1
-        Text(stringResource(Res.string.item_type))
-        Spacer(modifier = Modifier.height(4.dp))
-        Row(modifier.selectableGroup().thinOutline()) {
-            radioOptions.forEach { text ->
-                Row(
-                    Modifier
-                        .height(56.dp)
-                        .width(160.dp)
-                        .selectable(
+        var nameText by remember { mutableStateOf("") }
+        var commandText by remember { mutableStateOf("") }
+
+        val confirmEnabled = if (!addingCommand) {
+            nameText.trim().isNotEmpty()
+        } else {
+            nameText.trim().isNotEmpty() && commandText.trim().isNotEmpty()
+        }
+
+
+        if (!groupOnly) {
+            Text(stringResource(Res.string.item_type))
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(modifier.selectableGroup().thinOutline()) {
+                radioOptions.forEach { text ->
+                    Row(
+                        Modifier
+                            .height(56.dp)
+                            .width(160.dp)
+                            .selectable(
+                                selected = (text == selectedOption),
+                                onClick = { onOptionSelected(text) },
+                                role = Role.RadioButton
+                            )
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
                             selected = (text == selectedOption),
-                            onClick = { onOptionSelected(text) },
-                            role = Role.RadioButton
+                            onClick = null
                         )
-                        .padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = (text == selectedOption),
-                        onClick = null
-                    )
-                    Text(
-                        text = text,
-                        modifier = Modifier.padding(start = 16.dp)
-                    )
+                        Text(
+                            text = text,
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                    }
                 }
             }
+        } else {
+            Text(stringResource(Res.string.enter_group_name))
+            Spacer(modifier = Modifier.height(4.dp))
         }
 
         Spacer(modifier.height(8.dp))
 
-        var nameText by remember { mutableStateOf("") }
+
         TextField(
             value = nameText,
             onValueChange = { nameText = it },
@@ -206,7 +236,7 @@ fun AddItemScreen(
 
         Spacer(modifier.height(8.dp))
 
-        var commandText by remember { mutableStateOf("") }
+
         if (addingCommand) {
             TextField(
                 value = commandText,
@@ -232,7 +262,8 @@ fun AddItemScreen(
                     } else {
                         onAddGroup(ListItemGroupUiState(randomIdGenerator.generateId(), nameText, emptyList(), emptyList()))
                     }
-                }
+                },
+                enabled = confirmEnabled
             ) {
                 Text(stringResource(Res.string.ok))
             }
@@ -261,7 +292,7 @@ fun ItemList(items: List<ListItemGroupUiState>, modifier: Modifier, onAddItem: (
                         )
                     }
                     if (index == items.lastIndex) {
-                        AddRootItem { onAddItem("") }
+                        AddRootItem(stringResource(Res.string.add)) { onAddItem("") }
                     }
                 }
             }
@@ -270,7 +301,7 @@ fun ItemList(items: List<ListItemGroupUiState>, modifier: Modifier, onAddItem: (
                 modifier = Modifier.width(14.dp).padding(horizontal = 2.dp, vertical = 1.dp)
             )
         } else {
-            AddRootItem { onAddItem("") }
+            AddRootItem(stringResource(Res.string.add)) { onAddItem("") }
         }
     }
 }
