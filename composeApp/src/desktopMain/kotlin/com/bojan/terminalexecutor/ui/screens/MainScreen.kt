@@ -286,7 +286,7 @@ private fun ActionButtons(
         when (executeState) {
             ExecuteState.NONE -> {}
             ExecuteState.WORKING -> {
-                CircularProgressIndicator(modifier = Modifier.width(32.dp).padding(0.dp), color = MaterialTheme.colors.secondary)
+                CircularProgressIndicator(modifier = Modifier.width(32.dp).padding(top = 8.dp), color = MaterialTheme.colors.secondary)
             }
 
             ExecuteState.ERROR -> {
