@@ -7,6 +7,7 @@ import com.bojan.terminalexecutor.configmanagers.exportList
 import com.bojan.terminalexecutor.configmanagers.importList
 import com.bojan.terminalexecutor.enum.ExecuteState
 import com.bojan.terminalexecutor.enum.MainScreenDialog
+import com.bojan.terminalexecutor.ktx.replaceParams
 import com.bojan.terminalexecutor.ui.uistates.ItemsUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
@@ -68,21 +69,21 @@ class MainScreenViewModel(
     val uiState = _uiState.asStateFlow()
     private var commandToExecute: Array<String> = emptyArray()
     private var storedParentId: String? = null
+    private var currentParams: String = ""
 
     fun itemSelected(commands: List<String>) {
-        val separator = " "
-        val commandString = commands.joinToString(separator)
+        commandToExecute = commands.toTypedArray()
         _uiState.value = _uiState.value.copy(
-            command = commandString,
+            command = generateCommandText(),
             allowExecution = commands.isNotEmpty()
         )
-        commandToExecute = commands.toTypedArray()
     }
 
     fun execute(commandFiledPrefix: String, commandErrorPrefix: String) {
         _uiState.value = _uiState.value.copy(executeState = ExecuteState.WORKING, allowExecution = false, outputText = "")
+        val addedParams = commandToExecute.replaceParams(currentParams)
         viewModelScope.launch {
-            executeCommand(commandToExecute, commandFiledPrefix, commandErrorPrefix, _uiState.value.workingDirectory)
+            executeCommand(addedParams, commandFiledPrefix, commandErrorPrefix, _uiState.value.workingDirectory)
                 .onSuccess {
                     _uiState.value = _uiState.value.copy(outputText = it, executeState = ExecuteState.OK, allowExecution = true)
                 }
@@ -150,5 +151,21 @@ class MainScreenViewModel(
 
     fun workingDirChange(newDir: File) {
         _uiState.value = _uiState.value.copy(workingDirectory = newDir)
+    }
+
+    fun paramsTextUpdated(newParams: String) {
+        currentParams = newParams
+        _uiState.value = _uiState.value.copy(command = generateCommandText())
+    }
+
+    private fun generateCommandText(): String {
+        if (commandToExecute.isNotEmpty()) {
+            val separator = " "
+            val commandString = commandToExecute.joinToString(separator)
+            val withParams = commandToExecute.replaceParams(currentParams).joinToString(separator = separator)
+            return "$commandString\n($withParams)"
+        } else {
+            return ""
+        }
     }
 }

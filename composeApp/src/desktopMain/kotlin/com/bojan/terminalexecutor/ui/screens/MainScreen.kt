@@ -29,6 +29,9 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -62,6 +65,7 @@ import terminalexecutor.composeapp.generated.resources.import
 import terminalexecutor.composeapp.generated.resources.import_success_message
 import terminalexecutor.composeapp.generated.resources.open_file
 import terminalexecutor.composeapp.generated.resources.output
+import terminalexecutor.composeapp.generated.resources.params_text
 import terminalexecutor.composeapp.generated.resources.save_configuration_file
 import terminalexecutor.composeapp.generated.resources.select_working_dir
 import terminalexecutor.composeapp.generated.resources.working_directory
@@ -83,7 +87,7 @@ fun MainScreen(viewModel: MainScreenViewModel) {
     val commandErrorPrefix = stringResource(Res.string.command_error_prefix)
     val selectWorkingDir = stringResource(Res.string.select_working_dir)
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.surface).padding(8.dp)) {
-        WorkingDirectoryFragment(uiState.workingDirectory) {
+        WorkingDirectory(uiState.workingDirectory) {
             folderSwingChooser(title = selectWorkingDir) {
                 viewModel.workingDirChange(it)
             }
@@ -100,7 +104,7 @@ fun MainScreen(viewModel: MainScreenViewModel) {
             modifier = Modifier.weight(0.5f),
             command = uiState.command,
             output = uiState.outputText,
-
+            viewModel = viewModel
         )
         Spacer(modifier = Modifier.height(10.dp))
         ActionButtons(
@@ -140,7 +144,7 @@ fun MainScreen(viewModel: MainScreenViewModel) {
 }
 
 @Composable
-private fun WorkingDirectoryFragment(currentDir: File, onChangeWorkingDir: () -> Unit) {
+private fun WorkingDirectory(currentDir: File, onChangeWorkingDir: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.then(Modifier.fillMaxWidth())) {
         TextField(
             value = currentDir.toString(),
@@ -198,9 +202,24 @@ fun InfoFields(
     modifier: Modifier,
     command: String,
     output: String,
+    viewModel: MainScreenViewModel,
 ) {
     val clipboardManager = LocalClipboardManager.current
     Column(modifier = Modifier.fillMaxWidth().then(modifier)) {
+        var paramsText by remember { mutableStateOf("") }
+        TextField(
+            value = paramsText,
+            onValueChange = {
+                paramsText = it
+                viewModel.paramsTextUpdated(it)
+            },
+            modifier = Modifier.fillMaxWidth().thinOutline(),
+            readOnly = false,
+            singleLine = true,
+            label = { Text(stringResource(Res.string.params_text)) },
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+
         TextField(
             value = command,
             onValueChange = {},
