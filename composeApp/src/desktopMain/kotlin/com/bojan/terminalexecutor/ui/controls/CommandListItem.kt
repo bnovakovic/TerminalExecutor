@@ -22,8 +22,10 @@ import androidx.compose.ui.unit.dp
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import terminalexecutor.composeapp.generated.resources.Res
 import terminalexecutor.composeapp.generated.resources.add
+import terminalexecutor.composeapp.generated.resources.add_item
 import terminalexecutor.composeapp.generated.resources.arrow_down
 import terminalexecutor.composeapp.generated.resources.arrow_right
 
@@ -36,6 +38,21 @@ fun CommandListItem(
     Row(modifier = Modifier.clickable { onItemSelected() }.fillMaxWidth().then(modifier), verticalAlignment = Alignment.CenterVertically) {
         Spacer(modifier = Modifier.width(10.dp))
         Text(name)
+    }
+}
+
+@Composable
+fun AddRootItem(
+    onItemSelected: () -> Unit
+) {
+    Row(modifier = Modifier.clickable { onItemSelected() }.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Spacer(modifier = Modifier.width(10.dp))
+        Image(
+            painter = painterResource(Res.drawable.add),
+            contentDescription = null,
+            modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(stringResource(Res.string.add_item))
     }
 }
 

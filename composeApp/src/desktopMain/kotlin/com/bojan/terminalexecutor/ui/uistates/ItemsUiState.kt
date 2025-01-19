@@ -2,6 +2,11 @@ package com.bojan.terminalexecutor.ui.uistates
 
 data class ItemsUiState(val items: List<ListItemGroupUiState>) {
     fun addGroup(parentId: String, newGroup: ListItemGroupUiState): ItemsUiState {
+        if (parentId == "") {
+            val mutable = items.toMutableList()
+            mutable.add(newGroup)
+            return ItemsUiState(mutable.toList())
+        }
         return ItemsUiState(items.map { addGroupRecursively(it, parentId, newGroup) })
     }
 

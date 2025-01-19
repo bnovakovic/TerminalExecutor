@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.selection.selectable
@@ -47,6 +48,7 @@ import com.bojan.terminalexecutor.enum.MainScreenDialog
 import com.bojan.terminalexecutor.ktx.thinOutline
 import com.bojan.terminalexecutor.swing.openFileSwingChooser
 import com.bojan.terminalexecutor.swing.saveFileSwingChooser
+import com.bojan.terminalexecutor.ui.controls.AddRootItem
 import com.bojan.terminalexecutor.ui.controls.CommandListGroup
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
@@ -242,27 +244,34 @@ fun AddItemScreen(
 fun ItemList(items: List<ListItemGroupUiState>, modifier: Modifier, onAddItem: (String) -> Unit, onSelected: (List<String>) -> Unit) {
     val listState = rememberLazyListState()
     Row(modifier = Modifier.fillMaxWidth().thinOutline().then(modifier)) {
-        LazyColumn(state = listState, modifier = Modifier.weight(1.0f)) {
-            items(items) { item ->
-                item.apply {
-                    CommandListGroup(
-                        id = item.id,
-                        text = text,
-                        items = this.items,
-                        children = children,
-                        modifier = Modifier,
-                        onAddItem = {
-                            onAddItem(it)
-                        },
-                        onItemSelected = onSelected
-                    )
+        if (items.isNotEmpty()) {
+            LazyColumn(state = listState, modifier = Modifier.weight(1.0f)) {
+                itemsIndexed(items) { index, item ->
+                    item.apply {
+                        CommandListGroup(
+                            id = item.id,
+                            text = text,
+                            items = this.items,
+                            children = children,
+                            modifier = Modifier,
+                            onAddItem = {
+                                onAddItem(it)
+                            },
+                            onItemSelected = onSelected
+                        )
+                    }
+                    if (index == items.lastIndex) {
+                        AddRootItem { onAddItem("") }
+                    }
                 }
             }
+            VerticalScrollbar(
+                adapter = rememberScrollbarAdapter(scrollState = listState),
+                modifier = Modifier.width(14.dp).padding(horizontal = 2.dp, vertical = 1.dp)
+            )
+        } else {
+            AddRootItem { onAddItem("") }
         }
-        VerticalScrollbar(
-            adapter = rememberScrollbarAdapter(scrollState = listState),
-            modifier = Modifier.width(14.dp).padding(horizontal = 2.dp, vertical = 1.dp)
-        )
     }
 }
 
