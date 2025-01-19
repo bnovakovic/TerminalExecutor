@@ -75,13 +75,6 @@ class MainScreenViewModel(
     private var currentParams: String = ""
     private var doubleClickActive: Boolean = false
     private var clickTimerJob: Job? = null
-    private var commandFailPrefix = ""
-    private var commandErrorPrefix = ""
-
-    fun setCommandPrefixes(newCommandFailPrefix: String, newCommandErrorPrefix: String) {
-        commandFailPrefix = newCommandFailPrefix
-        commandErrorPrefix = newCommandErrorPrefix
-    }
 
     fun itemSelected(commands: List<String>) {
         val commandsToArray = commands.toTypedArray()
@@ -104,7 +97,7 @@ class MainScreenViewModel(
         _uiState.value = _uiState.value.copy(executeState = ExecuteState.WORKING, allowExecution = false, outputText = "")
         val addedParams = commandToExecute.replaceParams(currentParams)
         viewModelScope.launch {
-            executeCommand(addedParams, commandFailPrefix, commandErrorPrefix, _uiState.value.workingDirectory)
+            executeCommand(addedParams, _uiState.value.workingDirectory)
                 .onSuccess {
                     _uiState.value = _uiState.value.copy(outputText = it, executeState = ExecuteState.OK, allowExecution = true)
                 }

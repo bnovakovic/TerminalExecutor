@@ -54,8 +54,6 @@ import org.jetbrains.compose.resources.stringResource
 import terminalexecutor.composeapp.generated.resources.Res
 import terminalexecutor.composeapp.generated.resources.add
 import terminalexecutor.composeapp.generated.resources.command
-import terminalexecutor.composeapp.generated.resources.command_error_prefix
-import terminalexecutor.composeapp.generated.resources.command_failed_prefix
 import terminalexecutor.composeapp.generated.resources.copy_icon
 import terminalexecutor.composeapp.generated.resources.dark_mode
 import terminalexecutor.composeapp.generated.resources.execute
@@ -86,10 +84,8 @@ fun MainScreen(viewModel: MainScreenViewModel) {
     val fileNotFoundTitle = stringResource(Res.string.file_not_found_title)
     val exportSuccessMessage = stringResource(Res.string.export_success_message)
     val importSuccessMessage = stringResource(Res.string.import_success_message)
-    val commandFailPrefix = stringResource(Res.string.command_failed_prefix)
-    val commandErrorPrefix = stringResource(Res.string.command_error_prefix)
     val selectWorkingDir = stringResource(Res.string.select_working_dir)
-    viewModel.setCommandPrefixes(commandFailPrefix, commandErrorPrefix)
+
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.surface).padding(8.dp)) {
         WorkingDirectory(
             uiState.workingDirectory,

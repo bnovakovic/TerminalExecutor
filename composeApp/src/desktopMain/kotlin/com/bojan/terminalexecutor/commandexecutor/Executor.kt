@@ -4,7 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
-suspend fun executeCommand(command: Array<String>, commandFiledPrefix: String, commandErrorPrefix: String, workingDir: File): CommandResult {
+suspend fun executeCommand(command: Array<String>, workingDir: File): CommandResult {
     return try {
         withContext(Dispatchers.IO) {
             val processBuilder = ProcessBuilder(*command)
@@ -18,10 +18,10 @@ suspend fun executeCommand(command: Array<String>, commandFiledPrefix: String, c
             if (process.exitValue() == 0) {
                 CommandResult(output, null)
             } else {
-                CommandResult(null, "$commandFiledPrefix: ${process.exitValue()}")
+                CommandResult(null, "Error: Exit Value: ${process.exitValue()}\n. $output")
             }
         }
     } catch (e: Exception) {
-        CommandResult(null, "$commandErrorPrefix: ${e.message}")
+        CommandResult(null, e.message)
     }
 }
