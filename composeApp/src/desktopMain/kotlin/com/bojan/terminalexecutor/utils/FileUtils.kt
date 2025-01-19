@@ -29,3 +29,5 @@ enum class JvmOs { WINDOWS, LINUX, MAC }
 fun getFileSeparator(): String = FileSystems.getDefault().separator
 
 fun getCurrentDir() = File(System.getProperty("user.dir") ?: "")
+
+fun getConfigFile() = File(getWorkingDirectory(), "config.json")

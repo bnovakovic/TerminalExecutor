@@ -9,7 +9,6 @@ import com.bojan.terminalexecutor.configmanagers.importList
 import com.bojan.terminalexecutor.enum.ExecuteState
 import com.bojan.terminalexecutor.enum.MainScreenDialog
 import com.bojan.terminalexecutor.ktx.replaceParams
-import com.bojan.terminalexecutor.settings.CONFIGURATION_PATH
 import com.bojan.terminalexecutor.settings.EXPORT_PATH
 import com.bojan.terminalexecutor.settings.IMPORT_PATH
 import com.bojan.terminalexecutor.settings.IS_IN_DARK_MODE
@@ -20,6 +19,7 @@ import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import com.bojan.terminalexecutor.ui.uistates.MainScreenUiState
 import com.bojan.terminalexecutor.utils.RandomIdGenerator
+import com.bojan.terminalexecutor.utils.getConfigFile
 import com.bojan.terminalexecutor.utils.getCurrentDir
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -58,8 +58,10 @@ class MainScreenViewModel(
     init {
         settings.loadSettings()
         onThemeChanged(settings.getBoolean(IS_IN_DARK_MODE) ?: false)
-        settings.getString(CONFIGURATION_PATH)?.let {
-            import(File(it))
+        if (getConfigFile().exists()) {
+            viewModelScope.launch {
+                loadConfig()
+            }
         }
         settings.getString(WORKING_DIR)?.let {
             _uiState.value = _uiState.value.copy(workingDirectory = File(it))
@@ -116,16 +118,23 @@ class MainScreenViewModel(
 
     fun import(file: File) {
         viewModelScope.launch {
-            settings.putString(IMPORT_PATH, file.toString())
-            importList(file, idGenerator)
-                .onSuccess {
-                    _uiState.value = _uiState.value.copy(items = ItemsUiState(it), command = "", outputText = "", changesMade = false)
-                    settings.putString(CONFIGURATION_PATH, file.toString())
-                }
-                .onFailure {
-                    _uiState.value = _uiState.value.copy(outputText = it.message?: "", command = "")
-                }
+            if (file.exists()) {
+                val configFile = getConfigFile()
+                file.copyTo(configFile, overwrite = true)
+                settings.putString(IMPORT_PATH, file.toString())
+                loadConfig()
+            }
         }
+    }
+
+    private suspend fun loadConfig() {
+        importList(getConfigFile(), idGenerator)
+            .onSuccess {
+                _uiState.value = _uiState.value.copy(items = ItemsUiState(it), command = "", outputText = "", changesMade = false)
+            }
+            .onFailure {
+                _uiState.value = _uiState.value.copy(outputText = it.message ?: "", command = "")
+            }
     }
 
     fun showAddItemDialogue(parentId: String) {
@@ -198,10 +207,8 @@ class MainScreenViewModel(
     }
 
     fun saveChanges() {
-        settings.getString(CONFIGURATION_PATH)?.let {
-            export(File(it))
-            changesSaved()
-        }
+        export(getConfigFile())
+        changesSaved()
     }
 
     private fun generateCommandText(): String {
