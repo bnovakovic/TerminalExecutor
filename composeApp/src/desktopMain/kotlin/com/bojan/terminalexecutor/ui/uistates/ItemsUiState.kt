@@ -31,4 +31,41 @@ data class ItemsUiState(val items: List<ListItemGroupUiState>) {
         val updatedChildren = group.children.map { addItemRecursively(it, parentId, newItem) }
         return group.copy(children = updatedChildren)
     }
+
+
+    fun removeGroup(group: ListItemGroupUiState): ItemsUiState {
+        val updatedItems = items.map { itemGroup ->
+            itemGroup.removeChildGroup(group)
+        }.filter { it != group }
+
+        return ItemsUiState(updatedItems)
+    }
+
+    private fun ListItemGroupUiState.removeChildGroup(group: ListItemGroupUiState): ListItemGroupUiState {
+        val updatedChildren = children.map { childGroup ->
+            childGroup.removeChildGroup(group)
+        }.filter { it != group }
+        return this.copy(children = updatedChildren)
+    }
+
+
+    fun removeItem(parent: ListItemGroupUiState, itemIndex: Int): ItemsUiState {
+        val updatedGroups = items.map { it.removeItemRecursively(parent, itemIndex) }
+        return copy(items = updatedGroups)
+    }
+
+    private fun ListItemGroupUiState.removeItemRecursively(parent: ListItemGroupUiState, itemIndex: Int): ListItemGroupUiState {
+        val updatedItems = if (this.id == parent.id) {
+            if (itemIndex in items.indices) {
+                items.filterIndexed { index, _ -> index != itemIndex }
+            } else {
+                items
+            }
+        } else {
+            items
+        }
+
+        val updatedChildren = children.map { it.removeItemRecursively(parent, itemIndex) }
+        return this.copy(items = updatedItems, children = updatedChildren)
+    }
 }

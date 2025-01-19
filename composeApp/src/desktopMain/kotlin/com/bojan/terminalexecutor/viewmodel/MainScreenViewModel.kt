@@ -40,7 +40,7 @@ class MainScreenViewModel(
             allowExecution = false,
             outputText = "",
             executeState = ExecuteState.NONE,
-            mainScreenDialog = MainScreenDialog.NONE,
+            mainScreenDialog = MainScreenDialog.None,
             workingDirectory = getCurrentDir()
         )
     )
@@ -125,15 +125,15 @@ class MainScreenViewModel(
 
     fun showAddItemDialogue(parentId: String) {
         if (parentId != "") {
-            _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.ADD_ANY_ITEM)
+            _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.AddAnyItem)
         } else {
-            _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.ADD_GROUP)
+            _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.AddGroup)
         }
         storedParentId = parentId
     }
 
     fun hideDialogue() {
-        _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.NONE)
+        _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.None)
         storedParentId = null
     }
 
@@ -166,6 +166,27 @@ class MainScreenViewModel(
     fun changeTheme(isDark: Boolean) {
         onThemeChanged(isDark)
         settings.putBoolean(IS_IN_DARK_MODE, isDark)
+    }
+
+    fun askDeleteGroup(groupUiState: ListItemGroupUiState) {
+        _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.DeleteGroup(groupUiState))
+    }
+
+    fun confirmDeleteGroup(groupUiState: ListItemGroupUiState) {
+        val updatedItems = _uiState.value.items.removeGroup(groupUiState)
+        _uiState.value = _uiState.value.copy(items = updatedItems, mainScreenDialog = MainScreenDialog.None, outputText = "", command = "", allowExecution = false)
+        commandToExecute = arrayOf()
+    }
+
+    fun askDeleteItem(parent: ListItemGroupUiState, itemIndex: Int) {
+        _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.DeleteItem(parent, itemIndex))
+    }
+
+    fun confirmDeleteItem(parent: ListItemGroupUiState, itemIndex: Int) {
+        val updatedItems = _uiState.value.items.removeItem(parent, itemIndex)
+        _uiState.value = _uiState.value.copy(items = updatedItems, mainScreenDialog = MainScreenDialog.None, outputText = "", command = "", allowExecution = false)
+        commandToExecute = arrayOf()
+        hideDialogue()
     }
 
     private fun generateCommandText(): String {

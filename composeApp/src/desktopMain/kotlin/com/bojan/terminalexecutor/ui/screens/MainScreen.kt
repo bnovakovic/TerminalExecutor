@@ -102,8 +102,7 @@ fun MainScreen(viewModel: MainScreenViewModel) {
         ItemList(
             items = uiState.items.items,
             modifier = Modifier.weight(0.5f),
-            onAddItem = { viewModel.showAddItemDialogue(it) },
-            onSelected = { viewModel.itemSelected(it) }
+            viewModel = viewModel
         )
         Spacer(modifier = Modifier.height(8.dp))
         InfoFields(
@@ -180,7 +179,11 @@ private fun WorkingDirectoryAndThemeSwitch(currentDir: File, defaultSwitchValue:
 }
 
 @Composable
-fun ItemList(items: List<ListItemGroupUiState>, modifier: Modifier, onAddItem: (String) -> Unit, onSelected: (List<String>) -> Unit) {
+fun ItemList(
+    items: List<ListItemGroupUiState>,
+    modifier: Modifier,
+    viewModel: MainScreenViewModel,
+) {
     val listState = rememberLazyListState()
     Row(modifier = Modifier.fillMaxWidth().thinOutline().then(modifier)) {
         if (items.isNotEmpty()) {
@@ -188,19 +191,20 @@ fun ItemList(items: List<ListItemGroupUiState>, modifier: Modifier, onAddItem: (
                 itemsIndexed(items) { index, item ->
                     item.apply {
                         CommandListGroup(
-                            id = item.id,
-                            text = text,
-                            items = this.items,
-                            children = children,
+                            groupUiState = item,
                             modifier = Modifier,
                             onAddItem = {
-                                onAddItem(it)
+                                viewModel.showAddItemDialogue(it)
                             },
-                            onItemSelected = onSelected
+                            onItemSelected = { viewModel.itemSelected(it) },
+                            onDeleteGroup = { viewModel.askDeleteGroup(it) },
+                            onDeleteItem = { parent, index ->
+                                viewModel.askDeleteItem(parent, index)
+                            }
                         )
                     }
                     if (index == items.lastIndex) {
-                        AddRootItem(stringResource(Res.string.add)) { onAddItem("") }
+                        AddRootItem(stringResource(Res.string.add)) { viewModel.showAddItemDialogue("") }
                     }
                 }
             }
@@ -209,7 +213,7 @@ fun ItemList(items: List<ListItemGroupUiState>, modifier: Modifier, onAddItem: (
                 modifier = Modifier.width(14.dp).padding(horizontal = 2.dp, vertical = 1.dp)
             )
         } else {
-            AddRootItem(stringResource(Res.string.add)) { onAddItem("") }
+            AddRootItem(stringResource(Res.string.add)) { viewModel.showAddItemDialogue("") }
         }
     }
 }

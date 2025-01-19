@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
-import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import org.jetbrains.compose.resources.painterResource
 import terminalexecutor.composeapp.generated.resources.Res
 import terminalexecutor.composeapp.generated.resources.add
@@ -33,11 +34,15 @@ import terminalexecutor.composeapp.generated.resources.arrow_right
 fun CommandListItem(
     name: String,
     modifier: Modifier = Modifier,
+    onDelete: () -> Unit,
     onItemSelected: () -> Unit
 ) {
     Row(modifier = Modifier.clickable { onItemSelected() }.fillMaxWidth().then(modifier), verticalAlignment = Alignment.CenterVertically) {
         Spacer(modifier = Modifier.width(10.dp))
         Text(name, color = MaterialTheme.colors.onSurface)
+        Spacer(modifier = Modifier.weight(1.0f))
+        Image(Icons.Default.Delete, contentDescription = null, Modifier.size(16.dp).clickable { onDelete() }, colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface))
+        Spacer(modifier = Modifier.width(6.dp))
     }
 }
 
@@ -61,11 +66,10 @@ fun AddRootItem(
 
 @Composable
 fun CommandListGroup(
-    id: String,
-    text: String,
-    items: List<ListItemUiState>,
-    children: List<ListItemGroupUiState>,
+    groupUiState: ListItemGroupUiState,
     modifier: Modifier = Modifier,
+    onDeleteItem: (ListItemGroupUiState, Int) -> Unit,
+    onDeleteGroup: (ListItemGroupUiState) -> Unit,
     onAddItem: (String) -> Unit,
     onItemSelected: (List<String>) -> Unit
 ) {
@@ -78,30 +82,32 @@ fun CommandListGroup(
                 tint = MaterialTheme.colors.onSurface
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text, color = MaterialTheme.colors.onSurface)
+            Text(groupUiState.text, color = MaterialTheme.colors.onSurface)
             Spacer(modifier = Modifier.width(8.dp))
             Image(
                 painter = painterResource(Res.drawable.add),
                 contentDescription = null,
-                modifier = Modifier.size(16.dp).clickable { onAddItem(id) },
+                modifier = Modifier.size(16.dp).clickable { onAddItem(groupUiState.id) },
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface)
             )
+            Spacer(modifier = Modifier.weight(1.0f))
+            Image(Icons.Default.Delete, contentDescription = null, Modifier.size(16.dp).clickable { onDeleteGroup(groupUiState) }, colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface))
+            Spacer(modifier = Modifier.width(6.dp))
         }
         if (expanded) {
-            items.forEach {
-                CommandListItem(it.name, Modifier.padding(start = 24.dp)) { onItemSelected(it.commands) }
+            groupUiState.items.forEachIndexed { index, item ->
+                CommandListItem(item.name, Modifier.padding(start = 24.dp), onDelete = { onDeleteItem(groupUiState, index) }) { onItemSelected(item.commands) }
             }
-            children.forEach {
+            groupUiState.children.forEach { group ->
                 CommandListGroup(
-                    id = it.id,
-                    text = it.text,
-                    items = it.items,
-                    children = it.children,
+                    groupUiState = group,
                     modifier = Modifier.padding(start = 24.dp),
                     onAddItem = { thisId ->
                         onAddItem(thisId)
                     },
-                    onItemSelected = onItemSelected
+                    onItemSelected = onItemSelected,
+                    onDeleteItem = onDeleteItem,
+                    onDeleteGroup = { onDeleteGroup(it) }
                 )
             }
         }
