@@ -61,7 +61,8 @@ class MainScreenViewModel(
             allowExecution = false,
             outputText = "",
             executeState = ExecuteState.NONE,
-            mainScreenDialog = MainScreenDialog.NONE
+            mainScreenDialog = MainScreenDialog.NONE,
+            workingDirectory = File(System.getProperty("user.dir"))
         )
     )
     val uiState = _uiState.asStateFlow()
@@ -81,7 +82,7 @@ class MainScreenViewModel(
     fun execute(commandFiledPrefix: String, commandErrorPrefix: String) {
         _uiState.value = _uiState.value.copy(executeState = ExecuteState.WORKING, allowExecution = false, outputText = "")
         viewModelScope.launch {
-            executeCommand(commandToExecute, commandFiledPrefix, commandErrorPrefix)
+            executeCommand(commandToExecute, commandFiledPrefix, commandErrorPrefix, _uiState.value.workingDirectory)
                 .onSuccess {
                     _uiState.value = _uiState.value.copy(outputText = it, executeState = ExecuteState.OK, allowExecution = true)
                 }
@@ -145,5 +146,9 @@ class MainScreenViewModel(
             _uiState.value = _uiState.value.copy(items = newItems)
         }
         hideDialogue()
+    }
+
+    fun workingDirChange(newDir: File) {
+        _uiState.value = _uiState.value.copy(workingDirectory = newDir)
     }
 }

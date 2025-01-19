@@ -106,3 +106,21 @@ fun openFileSwingChooser(
         }
     }
 }
+
+/**
+ * Just a regular Folder chooser.
+ *
+ * @param title Title to show on top of the window.
+ * @param currentDir Default directory to use.
+ * @param onFolderSelected The callback invoked when folder is selected.
+ */
+fun folderSwingChooser(title: String, currentDir: File = File(""), onFolderSelected: (File) -> Unit) {
+    val fileChooser = JFileChooser(FileSystemView.getFileSystemView().homeDirectory)
+    fileChooser.dialogTitle = title
+    fileChooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+    fileChooser.currentDirectory = currentDir
+    val result = fileChooser.showOpenDialog(null)
+    if (result == JFileChooser.APPROVE_OPTION) {
+        onFolderSelected(fileChooser.selectedFile)
+    }
+}

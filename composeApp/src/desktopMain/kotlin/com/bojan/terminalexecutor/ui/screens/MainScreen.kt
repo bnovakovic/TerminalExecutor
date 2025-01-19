@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
@@ -28,6 +27,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -46,6 +46,7 @@ import com.bojan.terminalexecutor.constants.JSON_EXTENSION
 import com.bojan.terminalexecutor.enum.ExecuteState
 import com.bojan.terminalexecutor.enum.MainScreenDialog
 import com.bojan.terminalexecutor.ktx.thinOutline
+import com.bojan.terminalexecutor.swing.folderSwingChooser
 import com.bojan.terminalexecutor.swing.openFileSwingChooser
 import com.bojan.terminalexecutor.swing.saveFileSwingChooser
 import com.bojan.terminalexecutor.ui.controls.AddRootItem
@@ -79,6 +80,8 @@ import terminalexecutor.composeapp.generated.resources.ok
 import terminalexecutor.composeapp.generated.resources.open_file
 import terminalexecutor.composeapp.generated.resources.output
 import terminalexecutor.composeapp.generated.resources.save_configuration_file
+import terminalexecutor.composeapp.generated.resources.select_working_dir
+import terminalexecutor.composeapp.generated.resources.working_directory
 import java.io.File
 import javax.swing.filechooser.FileNameExtensionFilter
 
@@ -95,7 +98,14 @@ fun MainScreen(viewModel: MainScreenViewModel) {
     val importSuccessMessage = stringResource(Res.string.import_success_message)
     val commandFailPrefix = stringResource(Res.string.command_failed_prefix)
     val commandErrorPrefix = stringResource(Res.string.command_error_prefix)
+    val selectWorkingDir = stringResource(Res.string.select_working_dir)
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.surface).padding(8.dp)) {
+        WorkingDirectoryFragment(uiState.workingDirectory) {
+            folderSwingChooser(title = selectWorkingDir) {
+                viewModel.workingDirChange(it)
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
         ItemList(
             items = uiState.items.items,
             modifier = Modifier.weight(0.5f),
@@ -162,6 +172,25 @@ fun MainScreen(viewModel: MainScreenViewModel) {
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun WorkingDirectoryFragment(currentDir: File, onChangeWorkingDir: () -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.then(Modifier.fillMaxWidth())) {
+        TextField(
+            value = currentDir.toString(),
+            onValueChange = {},
+            modifier = Modifier.fillMaxWidth().thinOutline(),
+            readOnly = true,
+            singleLine = true,
+            label = { Text(stringResource(Res.string.working_directory)) },
+            trailingIcon = {
+                IconButton(onClick = onChangeWorkingDir) {
+                    Icon(Icons.Default.Edit, contentDescription = null)
+                }
+            }
+        )
     }
 }
 
