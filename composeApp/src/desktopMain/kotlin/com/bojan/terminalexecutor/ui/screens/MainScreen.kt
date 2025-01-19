@@ -69,6 +69,7 @@ import terminalexecutor.composeapp.generated.resources.import
 import terminalexecutor.composeapp.generated.resources.open_file
 import terminalexecutor.composeapp.generated.resources.output
 import terminalexecutor.composeapp.generated.resources.params_text
+import terminalexecutor.composeapp.generated.resources.save
 import terminalexecutor.composeapp.generated.resources.save_configuration_file
 import terminalexecutor.composeapp.generated.resources.select_working_dir
 import terminalexecutor.composeapp.generated.resources.working_directory
@@ -78,12 +79,6 @@ import javax.swing.filechooser.FileNameExtensionFilter
 @Composable
 fun MainScreen(viewModel: MainScreenViewModel) {
     val uiState by viewModel.uiState.collectAsState()
-    val exportTitle = stringResource(Res.string.save_configuration_file)
-    val fileExistText = stringResource(Res.string.file_already_exist)
-    val fileExistTitle = stringResource(Res.string.file_already_exist)
-    val openFileTitle = stringResource(Res.string.open_file)
-    val fileNotFoundMessage = stringResource(Res.string.file_not_found_message)
-    val fileNotFoundTitle = stringResource(Res.string.file_not_found_title)
     val selectWorkingDir = stringResource(Res.string.select_working_dir)
 
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.surface).padding(16.dp)) {
@@ -92,7 +87,7 @@ fun MainScreen(viewModel: MainScreenViewModel) {
             defaultSwitchValue = viewModel.settings.getBoolean(IS_IN_DARK_MODE) ?: false,
             onDarkModeEnabled = { viewModel.changeTheme(isDark = it) },
             onChangeWorkingDir = {
-                val previousWorkingDir = viewModel.settings.getString(WORKING_DIR) ?:""
+                val previousWorkingDir = viewModel.settings.getString(WORKING_DIR) ?: ""
                 folderSwingChooser(title = selectWorkingDir, currentDir = File(previousWorkingDir)) {
                     viewModel.workingDirChange(it)
                 }
@@ -113,42 +108,22 @@ fun MainScreen(viewModel: MainScreenViewModel) {
         )
         Spacer(modifier = Modifier.height(10.dp))
         ActionButtons(
-            onExecute = {
-                viewModel.execute()
-            },
             allowExecution = uiState.allowExecution,
             executeState = uiState.executeState,
-            onExport = {
-                val previousWorkingDir = viewModel.settings.getString(EXPORT_PATH) ?:""
-                saveFileSwingChooser(
-                    title = exportTitle,
-                    currentDir = File(previousWorkingDir),
-                    initialFileName = "TerminalExecutorConfiguration.$JSON_EXTENSION",
-                    onFileConfirm = { viewModel.export(it) },
-                    fileNameExtensionFilter = FileNameExtensionFilter("JSON File (.$JSON_EXTENSION)", JSON_EXTENSION),
-                    overwriteMessage = fileExistText,
-                    overwriteTitle = fileExistTitle
-                )
-            },
-            onImport = {
-                val previousWorkingDir = viewModel.settings.getString(IMPORT_PATH) ?:""
-                openFileSwingChooser(
-                    title = openFileTitle,
-                    currentDir = File(previousWorkingDir),
-                    initialFileName = "TerminalExecutorConfiguration.$JSON_EXTENSION",
-                    onFileConfirm = { viewModel.import(it) },
-                    fileNameExtensionFilter = FileNameExtensionFilter("JSON File (.$JSON_EXTENSION)", JSON_EXTENSION),
-                    fileDoesNotExistTitle = fileNotFoundTitle,
-                    fileDoesNotExistMessage = fileNotFoundMessage
-                )
-            }
+            hasChanges = uiState.changesMade,
+            viewModel = viewModel
         )
     }
     MainScreenPopup(uiState, viewModel)
 }
 
 @Composable
-private fun WorkingDirectoryAndThemeSwitch(currentDir: File, defaultSwitchValue: Boolean, onDarkModeEnabled: (Boolean) -> Unit, onChangeWorkingDir: () -> Unit) {
+private fun WorkingDirectoryAndThemeSwitch(
+    currentDir: File,
+    defaultSwitchValue: Boolean,
+    onDarkModeEnabled: (Boolean) -> Unit,
+    onChangeWorkingDir: () -> Unit
+) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         TextField(
             value = currentDir.toString(),
@@ -274,14 +249,20 @@ fun InfoFields(
 
 @Composable
 private fun ActionButtons(
-    onExecute: () -> Unit,
+    viewModel: MainScreenViewModel,
     allowExecution: Boolean,
+    hasChanges: Boolean,
     executeState: ExecuteState,
-    onImport: () -> Unit,
-    onExport: () -> Unit
 ) {
+    val exportTitle = stringResource(Res.string.save_configuration_file)
+    val fileExistText = stringResource(Res.string.file_already_exist)
+    val fileExistTitle = stringResource(Res.string.file_already_exist)
+    val openFileTitle = stringResource(Res.string.open_file)
+    val fileNotFoundMessage = stringResource(Res.string.file_not_found_message)
+    val fileNotFoundTitle = stringResource(Res.string.file_not_found_title)
+
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Button(onClick = { onExecute() }, enabled = allowExecution) {
+        Button(onClick = { viewModel.execute() }, enabled = allowExecution) {
             Text(stringResource(Res.string.execute))
         }
         Spacer(modifier = Modifier.width(8.dp))
@@ -304,12 +285,46 @@ private fun ActionButtons(
                 Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(32.dp), MaterialTheme.colors.primary)
             }
         }
-        Spacer(modifier = Modifier.weight(1.0f))
-        Button(onClick = onImport) {
+        if (hasChanges) {
+            Spacer(modifier = Modifier.weight(1.0f))
+            Button(onClick = { viewModel.saveChanges() }) {
+                Text(stringResource(Res.string.save))
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+        } else {
+            Spacer(modifier = Modifier.weight(1.0f))
+        }
+        Button(
+            onClick = {
+                val previousWorkingDir = viewModel.settings.getString(IMPORT_PATH) ?: ""
+                openFileSwingChooser(
+                    title = openFileTitle,
+                    currentDir = File(previousWorkingDir),
+                    initialFileName = "TerminalExecutorConfiguration.$JSON_EXTENSION",
+                    onFileConfirm = { viewModel.import(it) },
+                    fileNameExtensionFilter = FileNameExtensionFilter("JSON File (.$JSON_EXTENSION)", JSON_EXTENSION),
+                    fileDoesNotExistTitle = fileNotFoundTitle,
+                    fileDoesNotExistMessage = fileNotFoundMessage,
+                )
+            }
+        ) {
             Text(stringResource(Res.string.import))
         }
         Spacer(modifier = Modifier.width(8.dp))
-        Button(onClick = onExport) {
+        Button(
+            onClick = {
+                val previousWorkingDir = viewModel.settings.getString(EXPORT_PATH) ?:""
+                saveFileSwingChooser(
+                    title = exportTitle,
+                    currentDir = File(previousWorkingDir),
+                    initialFileName = "TerminalExecutorConfiguration.$JSON_EXTENSION",
+                    onFileConfirm = { viewModel.export(it) },
+                    fileNameExtensionFilter = FileNameExtensionFilter("JSON File (.$JSON_EXTENSION)", JSON_EXTENSION),
+                    overwriteMessage = fileExistText,
+                    overwriteTitle = fileExistTitle
+                )
+            }
+        ) {
             Text(stringResource(Res.string.export))
         }
     }

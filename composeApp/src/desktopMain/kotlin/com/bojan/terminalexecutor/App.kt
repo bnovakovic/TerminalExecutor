@@ -14,9 +14,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
-fun App() {
+fun App(appStateInfo: AppStateInfo) {
     var inDarkTheme by remember { mutableStateOf(false) }
-    val mainScreenViewModel by remember { mutableStateOf(MainScreenViewModel{ inDarkTheme = it }) }
+    val mainScreenViewModel by remember { mutableStateOf(MainScreenViewModel(appStateInfo = appStateInfo) { inDarkTheme = it }) }
     MaterialTheme(colors = if (inDarkTheme) darkColors() else lightColors()) {
         MainScreen(mainScreenViewModel)
     }

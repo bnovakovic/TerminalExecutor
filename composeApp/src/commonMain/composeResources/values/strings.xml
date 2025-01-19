@@ -23,6 +23,10 @@
     <string name="select_working_dir">Select working directory</string>
     <string name="params_text">Params. Separated by comma (,)</string>
     <string name="dark_mode">Dark mode</string>
+    <string name="confirm_exit_changes">You have unsaved changes, are you sure you want to exit?</string>
     <string name="group_delete_text">Are you sure you want to delete the group '%1$s'?\nAll it's commands and child groups will be deleted too.</string>
     <string name="item_delete_text">Are you sure you want to delete the command '%1$s'?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="save">Save</string>
 </resources>

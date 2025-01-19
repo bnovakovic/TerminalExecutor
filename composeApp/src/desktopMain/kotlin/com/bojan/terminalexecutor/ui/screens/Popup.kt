@@ -22,6 +22,8 @@ import org.jetbrains.compose.resources.stringResource
 import terminalexecutor.composeapp.generated.resources.Res
 import terminalexecutor.composeapp.generated.resources.group_delete_text
 import terminalexecutor.composeapp.generated.resources.item_delete_text
+import terminalexecutor.composeapp.generated.resources.no
+import terminalexecutor.composeapp.generated.resources.yes
 
 @Composable
 fun MainScreenPopup(
@@ -83,11 +85,11 @@ fun YesNoPopupScreen(message: String, onYes: () -> Unit, onNo: () -> Unit) {
         Row {
             Spacer(modifier = Modifier.weight(1.0f))
             Button(onClick = onYes) {
-                Text("Yes")
+                Text(stringResource(Res.string.yes))
             }
             Spacer(modifier = Modifier.width(16.dp))
             Button(onClick = onNo) {
-                Text("No")
+                Text(stringResource(Res.string.no))
             }
             Spacer(modifier = Modifier.weight(1.0f))
         }

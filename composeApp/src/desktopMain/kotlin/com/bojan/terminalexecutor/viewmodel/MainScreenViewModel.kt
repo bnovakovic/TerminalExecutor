@@ -2,6 +2,7 @@ package com.bojan.terminalexecutor.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bojan.terminalexecutor.AppStateInfo
 import com.bojan.terminalexecutor.commandexecutor.executeCommand
 import com.bojan.terminalexecutor.configmanagers.exportList
 import com.bojan.terminalexecutor.configmanagers.importList
@@ -31,6 +32,7 @@ import java.io.File
 class MainScreenViewModel(
     val idGenerator: RandomIdGenerator = RandomIdGenerator(),
     val settings: TerminalExecutorSettings = TerminalExecutorSettings(),
+    val appStateInfo: AppStateInfo,
     private val onThemeChanged: (Boolean) -> Unit
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
@@ -41,7 +43,8 @@ class MainScreenViewModel(
             outputText = "",
             executeState = ExecuteState.NONE,
             mainScreenDialog = MainScreenDialog.None,
-            workingDirectory = getCurrentDir()
+            workingDirectory = getCurrentDir(),
+            changesMade = false
         )
     )
     val uiState = _uiState.asStateFlow()
@@ -81,16 +84,18 @@ class MainScreenViewModel(
     }
 
     fun execute() {
-        _uiState.value = _uiState.value.copy(executeState = ExecuteState.WORKING, allowExecution = false, outputText = "")
-        val addedParams = commandToExecute.replaceParams(currentParams)
-        viewModelScope.launch {
-            executeCommand(addedParams, _uiState.value.workingDirectory)
-                .onSuccess {
-                    _uiState.value = _uiState.value.copy(outputText = it, executeState = ExecuteState.OK, allowExecution = true)
-                }
-                .onFailure {
-                    _uiState.value = _uiState.value.copy(outputText = it, executeState = ExecuteState.ERROR, allowExecution = true)
-                }
+        if (commandToExecute.isNotEmpty()) {
+            _uiState.value = _uiState.value.copy(executeState = ExecuteState.WORKING, allowExecution = false, outputText = "")
+            val addedParams = commandToExecute.replaceParams(currentParams)
+            viewModelScope.launch {
+                executeCommand(addedParams, _uiState.value.workingDirectory)
+                    .onSuccess {
+                        _uiState.value = _uiState.value.copy(outputText = it, executeState = ExecuteState.OK, allowExecution = true)
+                    }
+                    .onFailure {
+                        _uiState.value = _uiState.value.copy(outputText = it, executeState = ExecuteState.ERROR, allowExecution = true)
+                    }
+            }
         }
     }
 
@@ -105,7 +110,7 @@ class MainScreenViewModel(
                 .onFailure {
                     _uiState.value = _uiState.value.copy(outputText = it.message?: "")
                 }
-            _uiState.value = _uiState.value.copy(allowExecution = true)
+            _uiState.value = _uiState.value.copy(allowExecution = commandToExecute.isNotEmpty())
         }
     }
 
@@ -114,7 +119,7 @@ class MainScreenViewModel(
             settings.putString(IMPORT_PATH, file.toString())
             importList(file, idGenerator)
                 .onSuccess {
-                    _uiState.value = _uiState.value.copy(items = ItemsUiState(it), command = "", outputText = "")
+                    _uiState.value = _uiState.value.copy(items = ItemsUiState(it), command = "", outputText = "", changesMade = false)
                     settings.putString(CONFIGURATION_PATH, file.toString())
                 }
                 .onFailure {
@@ -142,6 +147,7 @@ class MainScreenViewModel(
             val newItems = _uiState.value.items.addGroup(it, listItemGroupUiState)
             _uiState.value = _uiState.value.copy(items = newItems)
         }
+        changesMade()
         hideDialogue()
     }
 
@@ -150,6 +156,7 @@ class MainScreenViewModel(
             val newItems = _uiState.value.items.addItem(it, listItemUiState)
             _uiState.value = _uiState.value.copy(items = newItems)
         }
+        changesMade()
         hideDialogue()
     }
 
@@ -176,6 +183,7 @@ class MainScreenViewModel(
         val updatedItems = _uiState.value.items.removeGroup(groupUiState)
         _uiState.value = _uiState.value.copy(items = updatedItems, mainScreenDialog = MainScreenDialog.None, outputText = "", command = "", allowExecution = false)
         commandToExecute = arrayOf()
+        changesMade()
     }
 
     fun askDeleteItem(parent: ListItemGroupUiState, itemIndex: Int) {
@@ -186,7 +194,14 @@ class MainScreenViewModel(
         val updatedItems = _uiState.value.items.removeItem(parent, itemIndex)
         _uiState.value = _uiState.value.copy(items = updatedItems, mainScreenDialog = MainScreenDialog.None, outputText = "", command = "", allowExecution = false)
         commandToExecute = arrayOf()
-        hideDialogue()
+        changesMade()
+    }
+
+    fun saveChanges() {
+        settings.getString(CONFIGURATION_PATH)?.let {
+            export(File(it))
+            changesSaved()
+        }
     }
 
     private fun generateCommandText(): String {
@@ -202,6 +217,16 @@ class MainScreenViewModel(
         } else {
             ""
         }
+    }
+
+    private fun changesMade() {
+        appStateInfo.changesMade = true
+        _uiState.value = _uiState.value.copy(changesMade = true)
+    }
+
+    private fun changesSaved() {
+        appStateInfo.changesMade = false
+        _uiState.value = _uiState.value.copy(changesMade = false)
     }
 
     private fun startDoubleClickTimerReset() {

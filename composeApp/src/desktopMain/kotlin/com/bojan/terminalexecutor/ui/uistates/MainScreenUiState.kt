@@ -11,5 +11,6 @@ data class MainScreenUiState(
     val outputText: String,
     val executeState: ExecuteState,
     val mainScreenDialog: MainScreenDialog,
-    val workingDirectory: File
+    val workingDirectory: File,
+    val changesMade: Boolean
 )
