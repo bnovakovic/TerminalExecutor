@@ -163,7 +163,11 @@ class MainScreenViewModel(
             val separator = " "
             val commandString = commandToExecute.joinToString(separator)
             val withParams = commandToExecute.replaceParams(currentParams).joinToString(separator = separator)
-            return "$commandString\n($withParams)"
+            if (currentParams.trim().isNotEmpty()) {
+                return "$commandString\n($withParams)"
+            } else {
+                return commandString
+            }
         } else {
             return ""
         }

@@ -14,6 +14,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.bojan.terminalexecutor.ktx.thinOutline
@@ -61,7 +63,7 @@ fun AddItemScreen(
 
 
         if (!groupOnly) {
-            Text(stringResource(Res.string.item_type))
+            Text(stringResource(Res.string.item_type), color = MaterialTheme.colors.onSurface)
             Spacer(modifier = Modifier.height(4.dp))
             Row(modifier.selectableGroup().thinOutline()) {
                 radioOptions.forEach { text ->
@@ -83,13 +85,17 @@ fun AddItemScreen(
                         )
                         Text(
                             text = text,
-                            modifier = Modifier.padding(start = 16.dp)
+                            modifier = Modifier.padding(start = 16.dp),
+                            color = MaterialTheme.colors.onSurface
                         )
                     }
                 }
             }
         } else {
-            Text(stringResource(Res.string.enter_group_name))
+            Text(
+                stringResource(Res.string.enter_group_name),
+                color = MaterialTheme.colors.onSurface
+            )
             Spacer(modifier = Modifier.height(4.dp))
         }
 
@@ -103,8 +109,8 @@ fun AddItemScreen(
             readOnly = false,
             label = { Text(stringResource(Res.string.name)) },
             singleLine = true,
-
-            )
+            colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface)
+        )
 
         Spacer(modifier.height(8.dp))
 
@@ -116,6 +122,7 @@ fun AddItemScreen(
                 modifier = Modifier.width(800.dp).thinOutline(),
                 readOnly = false,
                 label = { Text(stringResource(Res.string.command)) },
+                colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface),
             )
 
             Spacer(modifier.height(8.dp))

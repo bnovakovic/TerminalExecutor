@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
@@ -35,7 +37,7 @@ fun CommandListItem(
 ) {
     Row(modifier = Modifier.clickable { onItemSelected() }.fillMaxWidth().then(modifier), verticalAlignment = Alignment.CenterVertically) {
         Spacer(modifier = Modifier.width(10.dp))
-        Text(name)
+        Text(name, color = MaterialTheme.colors.onSurface)
     }
 }
 
@@ -49,9 +51,11 @@ fun AddRootItem(
         Image(
             painter = painterResource(Res.drawable.add),
             contentDescription = null,
-            modifier = Modifier.size(16.dp))
+            modifier = Modifier.size(16.dp),
+            colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface)
+        )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(text)
+        Text(text, color = MaterialTheme.colors.onSurface)
     }
 }
 
@@ -68,14 +72,20 @@ fun CommandListGroup(
     var expanded by remember { mutableStateOf(false) }
     Column(modifier = Modifier.fillMaxWidth().then(modifier)) {
         Row(modifier = Modifier.clickable { expanded = !expanded }.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Icon(painterResource(getIcon(expanded)), contentDescription = null)
+            Icon(
+                painterResource(getIcon(expanded)),
+                contentDescription = null,
+                tint = MaterialTheme.colors.onSurface
+            )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text)
+            Text(text, color = MaterialTheme.colors.onSurface)
             Spacer(modifier = Modifier.width(8.dp))
             Image(
                 painter = painterResource(Res.drawable.add),
                 contentDescription = null,
-                modifier = Modifier.size(16.dp).clickable { onAddItem(id) })
+                modifier = Modifier.size(16.dp).clickable { onAddItem(id) },
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface)
+            )
         }
         if (expanded) {
             items.forEach {

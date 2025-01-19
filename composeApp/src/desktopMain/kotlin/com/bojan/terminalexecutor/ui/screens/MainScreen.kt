@@ -22,6 +22,8 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldColors
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
@@ -157,7 +159,8 @@ private fun WorkingDirectory(currentDir: File, onChangeWorkingDir: () -> Unit) {
                 IconButton(onClick = onChangeWorkingDir) {
                     Icon(Icons.Default.Edit, contentDescription = null)
                 }
-            }
+            },
+            colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface)
         )
     }
 }
@@ -217,6 +220,7 @@ fun InfoFields(
             readOnly = false,
             singleLine = true,
             label = { Text(stringResource(Res.string.params_text)) },
+            colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface),
         )
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -230,7 +234,8 @@ fun InfoFields(
                 IconButton(onClick = { clipboardManager.setText(buildAnnotatedString { append(command) }) }) {
                     Icon(painter = painterResource(Res.drawable.copy_icon), contentDescription = null)
                 }
-            }
+            },
+            colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface)
         )
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
@@ -243,7 +248,8 @@ fun InfoFields(
                 IconButton(onClick = { clipboardManager.setText(buildAnnotatedString { append(output) }) }) {
                     Icon(painter = painterResource(Res.drawable.copy_icon), contentDescription = null)
                 }
-            }
+            },
+            colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface),
         )
     }
 }
