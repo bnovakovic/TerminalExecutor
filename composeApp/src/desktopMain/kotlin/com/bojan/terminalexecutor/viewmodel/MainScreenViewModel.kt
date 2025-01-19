@@ -20,7 +20,8 @@ import java.io.File
 
 
 class MainScreenViewModel(
-    val idGenerator: RandomIdGenerator = RandomIdGenerator()
+    val idGenerator: RandomIdGenerator = RandomIdGenerator(),
+    private val onThemeChanged: (Boolean) -> Unit
 ) : ViewModel() {
     private val exampleItems = listOf(
         ListItemGroupUiState(
@@ -156,6 +157,10 @@ class MainScreenViewModel(
     fun paramsTextUpdated(newParams: String) {
         currentParams = newParams
         _uiState.value = _uiState.value.copy(command = generateCommandText())
+    }
+
+    fun changeTheme(isDark: Boolean) {
+        onThemeChanged(isDark)
     }
 
     private fun generateCommandText(): String {

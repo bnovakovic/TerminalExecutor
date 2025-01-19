@@ -24,4 +24,5 @@
     <string name="working_directory">Working dir</string>
     <string name="select_working_dir">Select working directory</string>
     <string name="params_text">Params. Separated by comma (,)</string>
+    <string name="dark_mode">Dark mode</string>
 </resources>

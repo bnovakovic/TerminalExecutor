@@ -20,9 +20,9 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldColors
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -57,6 +57,7 @@ import terminalexecutor.composeapp.generated.resources.command
 import terminalexecutor.composeapp.generated.resources.command_error_prefix
 import terminalexecutor.composeapp.generated.resources.command_failed_prefix
 import terminalexecutor.composeapp.generated.resources.copy_icon
+import terminalexecutor.composeapp.generated.resources.dark_mode
 import terminalexecutor.composeapp.generated.resources.execute
 import terminalexecutor.composeapp.generated.resources.export
 import terminalexecutor.composeapp.generated.resources.export_success_message
@@ -89,11 +90,15 @@ fun MainScreen(viewModel: MainScreenViewModel) {
     val commandErrorPrefix = stringResource(Res.string.command_error_prefix)
     val selectWorkingDir = stringResource(Res.string.select_working_dir)
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.surface).padding(8.dp)) {
-        WorkingDirectory(uiState.workingDirectory) {
-            folderSwingChooser(title = selectWorkingDir) {
-                viewModel.workingDirChange(it)
+        WorkingDirectory(
+            uiState.workingDirectory,
+            onDarkModeEnabled = { viewModel.changeTheme(isDark = it) },
+            onChangeWorkingDir = {
+                folderSwingChooser(title = selectWorkingDir) {
+                    viewModel.workingDirChange(it)
+                }
             }
-        }
+        )
         Spacer(modifier = Modifier.height(8.dp))
         ItemList(
             items = uiState.items.items,
@@ -146,12 +151,12 @@ fun MainScreen(viewModel: MainScreenViewModel) {
 }
 
 @Composable
-private fun WorkingDirectory(currentDir: File, onChangeWorkingDir: () -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.then(Modifier.fillMaxWidth())) {
+private fun WorkingDirectory(currentDir: File, onDarkModeEnabled: (Boolean) -> Unit, onChangeWorkingDir: () -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         TextField(
             value = currentDir.toString(),
             onValueChange = {},
-            modifier = Modifier.fillMaxWidth().thinOutline(),
+            modifier = Modifier.weight(1.0f).thinOutline(),
             readOnly = true,
             singleLine = true,
             label = { Text(stringResource(Res.string.working_directory)) },
@@ -161,6 +166,17 @@ private fun WorkingDirectory(currentDir: File, onChangeWorkingDir: () -> Unit) {
                 }
             },
             colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface)
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        var checked by remember { mutableStateOf(false) }
+        Text(stringResource(Res.string.dark_mode), color = MaterialTheme.colors.onSurface)
+        Spacer(modifier = Modifier.width(4.dp))
+        Switch(
+            checked = checked,
+            onCheckedChange = {
+                checked = it
+                onDarkModeEnabled(checked)
+            },
         )
     }
 }
