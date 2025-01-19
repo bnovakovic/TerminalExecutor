@@ -89,6 +89,7 @@ fun MainScreen(viewModel: MainScreenViewModel) {
     val commandFailPrefix = stringResource(Res.string.command_failed_prefix)
     val commandErrorPrefix = stringResource(Res.string.command_error_prefix)
     val selectWorkingDir = stringResource(Res.string.select_working_dir)
+    viewModel.setCommandPrefixes(commandFailPrefix, commandErrorPrefix)
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.surface).padding(8.dp)) {
         WorkingDirectory(
             uiState.workingDirectory,
@@ -116,10 +117,7 @@ fun MainScreen(viewModel: MainScreenViewModel) {
         Spacer(modifier = Modifier.height(10.dp))
         ActionButtons(
             onExecute = {
-                viewModel.execute(
-                    commandFailPrefix,
-                    commandErrorPrefix,
-                )
+                viewModel.execute()
             },
             allowExecution = uiState.allowExecution,
             executeState = uiState.executeState,

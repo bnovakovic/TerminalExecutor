@@ -13,6 +13,8 @@ import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import com.bojan.terminalexecutor.ui.uistates.MainScreenUiState
 import com.bojan.terminalexecutor.utils.RandomIdGenerator
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -71,20 +73,38 @@ class MainScreenViewModel(
     private var commandToExecute: Array<String> = emptyArray()
     private var storedParentId: String? = null
     private var currentParams: String = ""
+    private var doubleClickActive: Boolean = false
+    private var clickTimerJob: Job? = null
+    private var commandFailPrefix = ""
+    private var commandErrorPrefix = ""
 
-    fun itemSelected(commands: List<String>) {
-        commandToExecute = commands.toTypedArray()
-        _uiState.value = _uiState.value.copy(
-            command = generateCommandText(),
-            allowExecution = commands.isNotEmpty()
-        )
+    fun setCommandPrefixes(newCommandFailPrefix: String, newCommandErrorPrefix: String) {
+        commandFailPrefix = newCommandFailPrefix
+        commandErrorPrefix = newCommandErrorPrefix
     }
 
-    fun execute(commandFiledPrefix: String, commandErrorPrefix: String) {
+    fun itemSelected(commands: List<String>) {
+        val commandsToArray = commands.toTypedArray()
+
+        // Unfortunately double click either causes lag or issues in compose, so I had to use this non standard way of detecting it.
+        if (doubleClickActive && commandsToArray.contentEquals(commandToExecute) && _uiState.value.allowExecution) {
+            execute()
+        } else {
+            commandToExecute = commandsToArray
+            _uiState.value = _uiState.value.copy(
+                command = generateCommandText(),
+                allowExecution = commands.isNotEmpty()
+            )
+            doubleClickActive = true
+            startDoubleClickTimerReset()
+        }
+    }
+
+    fun execute() {
         _uiState.value = _uiState.value.copy(executeState = ExecuteState.WORKING, allowExecution = false, outputText = "")
         val addedParams = commandToExecute.replaceParams(currentParams)
         viewModelScope.launch {
-            executeCommand(addedParams, commandFiledPrefix, commandErrorPrefix, _uiState.value.workingDirectory)
+            executeCommand(addedParams, commandFailPrefix, commandErrorPrefix, _uiState.value.workingDirectory)
                 .onSuccess {
                     _uiState.value = _uiState.value.copy(outputText = it, executeState = ExecuteState.OK, allowExecution = true)
                 }
@@ -176,5 +196,16 @@ class MainScreenViewModel(
         } else {
             return ""
         }
+    }
+
+    private fun startDoubleClickTimerReset() {
+        clickTimerJob = viewModelScope.launch {
+            delay(DOUBLE_CLICK_DELAY)
+            doubleClickActive = false
+        }
+    }
+
+    companion object {
+        const val DOUBLE_CLICK_DELAY = 300L
     }
 }
