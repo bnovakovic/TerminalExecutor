@@ -6,7 +6,10 @@ class RandomIdGenerator {
     fun generateId(): String {
         val generated = generateStringId(RANDOM_ID_COMPLEXITY)
         val added = storedIds.add(generated)
-        println("Success: $added, ID: $generated")
+        if (!added) {
+            println("$generated already exist. Have to try again")
+            return generateId()
+        }
         return generated
     }
 
@@ -15,6 +18,12 @@ class RandomIdGenerator {
         return (1..length)
             .map { allowedChars.random() }
             .joinToString("")
+    }
+
+    fun printStoredIds() {
+        storedIds.forEach {
+            println(it)
+        }
     }
 
     companion object {

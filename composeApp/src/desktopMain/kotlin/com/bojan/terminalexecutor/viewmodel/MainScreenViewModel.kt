@@ -135,6 +135,7 @@ class MainScreenViewModel(
             .onFailure {
                 _uiState.value = _uiState.value.copy(outputText = it.message ?: "", command = "")
             }
+        idGenerator.printStoredIds()
     }
 
     fun showAddItemDialogue(parentId: String) {
