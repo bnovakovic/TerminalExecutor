@@ -8,11 +8,18 @@ import com.bojan.terminalexecutor.configmanagers.importList
 import com.bojan.terminalexecutor.enum.ExecuteState
 import com.bojan.terminalexecutor.enum.MainScreenDialog
 import com.bojan.terminalexecutor.ktx.replaceParams
+import com.bojan.terminalexecutor.settings.CONFIGURATION_PATH
+import com.bojan.terminalexecutor.settings.EXPORT_PATH
+import com.bojan.terminalexecutor.settings.IMPORT_PATH
+import com.bojan.terminalexecutor.settings.IS_IN_DARK_MODE
+import com.bojan.terminalexecutor.settings.TerminalExecutorSettings
+import com.bojan.terminalexecutor.settings.WORKING_DIR
 import com.bojan.terminalexecutor.ui.uistates.ItemsUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import com.bojan.terminalexecutor.ui.uistates.MainScreenUiState
 import com.bojan.terminalexecutor.utils.RandomIdGenerator
+import com.bojan.terminalexecutor.utils.getCurrentDir
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,41 +30,9 @@ import java.io.File
 
 class MainScreenViewModel(
     val idGenerator: RandomIdGenerator = RandomIdGenerator(),
+    val settings: TerminalExecutorSettings = TerminalExecutorSettings(),
     private val onThemeChanged: (Boolean) -> Unit
 ) : ViewModel() {
-    private val exampleItems = listOf(
-        ListItemGroupUiState(
-            id = "0",
-            text = "ADB",
-            items = listOf(
-                ListItemUiState("ADB list devices", listOf("adb", "devices")),
-                ListItemUiState("Wrong ADB command", listOf("adb", "programs")),
-                ListItemUiState("Wrong adb executable", listOf("adbe", "devices")),
-            ),
-            children = listOf(
-                ListItemGroupUiState(
-                    id = "0,0",
-                    text = "Server",
-                    items = listOf(
-                        ListItemUiState("ADB Kill Server", listOf("adb", "kill-server")),
-                        ListItemUiState("ADB Start Server", listOf("adb", "start-server")),
-                    ),
-                    children = emptyList()
-                )
-            )
-        ),
-        ListItemGroupUiState(
-            id = "1",
-            text = "GIT",
-            items = listOf(
-                ListItemUiState("Git status", listOf("git", "status")),
-                ListItemUiState("Git read remote config", listOf("git", "config", "--get", "remote.origin.url")),
-                ListItemUiState("Git show remote", listOf("git", "remote", "show", "origin")),
-            ),
-            children = emptyList()
-        )
-
-    )
     private val _uiState = MutableStateFlow(
         MainScreenUiState(
             items = ItemsUiState(emptyList()),
@@ -66,15 +41,27 @@ class MainScreenViewModel(
             outputText = "",
             executeState = ExecuteState.NONE,
             mainScreenDialog = MainScreenDialog.NONE,
-            workingDirectory = File(System.getProperty("user.dir"))
+            workingDirectory = getCurrentDir()
         )
     )
     val uiState = _uiState.asStateFlow()
     private var commandToExecute: Array<String> = emptyArray()
     private var storedParentId: String? = null
     private var currentParams: String = ""
+
     private var doubleClickActive: Boolean = false
     private var clickTimerJob: Job? = null
+
+    init {
+        settings.loadSettings()
+        onThemeChanged(settings.getBoolean(IS_IN_DARK_MODE) ?: false)
+        settings.getString(CONFIGURATION_PATH)?.let {
+            import(File(it))
+        }
+        settings.getString(WORKING_DIR)?.let {
+            _uiState.value = _uiState.value.copy(workingDirectory = File(it))
+        }
+    }
 
     fun itemSelected(commands: List<String>) {
         val commandsToArray = commands.toTypedArray()
@@ -107,12 +94,13 @@ class MainScreenViewModel(
         }
     }
 
-    fun export(file: File, successMessage: String) {
+    fun export(file: File) {
         _uiState.value = _uiState.value.copy(allowExecution = false)
         viewModelScope.launch {
+            settings.putString(EXPORT_PATH, file.toString())
             exportList(uiState.value.items.items, file)
                 .onSuccess {
-                    _uiState.value = _uiState.value.copy(outputText = successMessage)
+                    _uiState.value = _uiState.value.copy(outputText = "")
                 }
                 .onFailure {
                     _uiState.value = _uiState.value.copy(outputText = it.message?: "")
@@ -121,11 +109,13 @@ class MainScreenViewModel(
         }
     }
 
-    fun import(file: File, successMessage: String) {
+    fun import(file: File) {
         viewModelScope.launch {
+            settings.putString(IMPORT_PATH, file.toString())
             importList(file, idGenerator)
                 .onSuccess {
-                    _uiState.value = _uiState.value.copy(items = ItemsUiState(it), command = "", outputText = successMessage)
+                    _uiState.value = _uiState.value.copy(items = ItemsUiState(it), command = "", outputText = "")
+                    settings.putString(CONFIGURATION_PATH, file.toString())
                 }
                 .onFailure {
                     _uiState.value = _uiState.value.copy(outputText = it.message?: "", command = "")
@@ -165,6 +155,7 @@ class MainScreenViewModel(
 
     fun workingDirChange(newDir: File) {
         _uiState.value = _uiState.value.copy(workingDirectory = newDir)
+        settings.putString(WORKING_DIR, newDir.toString())
     }
 
     fun paramsTextUpdated(newParams: String) {
@@ -174,20 +165,21 @@ class MainScreenViewModel(
 
     fun changeTheme(isDark: Boolean) {
         onThemeChanged(isDark)
+        settings.putBoolean(IS_IN_DARK_MODE, isDark)
     }
 
     private fun generateCommandText(): String {
-        if (commandToExecute.isNotEmpty()) {
+        return if (commandToExecute.isNotEmpty()) {
             val separator = " "
             val commandString = commandToExecute.joinToString(separator)
             val withParams = commandToExecute.replaceParams(currentParams).joinToString(separator = separator)
             if (currentParams.trim().isNotEmpty()) {
-                return "$commandString\n($withParams)"
+                "$commandString\n($withParams)"
             } else {
-                return commandString
+                commandString
             }
         } else {
-            return ""
+            ""
         }
     }
 

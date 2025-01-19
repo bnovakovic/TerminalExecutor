@@ -42,6 +42,10 @@ import androidx.compose.ui.unit.dp
 import com.bojan.terminalexecutor.constants.JSON_EXTENSION
 import com.bojan.terminalexecutor.enum.ExecuteState
 import com.bojan.terminalexecutor.ktx.thinOutline
+import com.bojan.terminalexecutor.settings.EXPORT_PATH
+import com.bojan.terminalexecutor.settings.IMPORT_PATH
+import com.bojan.terminalexecutor.settings.IS_IN_DARK_MODE
+import com.bojan.terminalexecutor.settings.WORKING_DIR
 import com.bojan.terminalexecutor.swing.folderSwingChooser
 import com.bojan.terminalexecutor.swing.openFileSwingChooser
 import com.bojan.terminalexecutor.swing.saveFileSwingChooser
@@ -58,12 +62,10 @@ import terminalexecutor.composeapp.generated.resources.copy_icon
 import terminalexecutor.composeapp.generated.resources.dark_mode
 import terminalexecutor.composeapp.generated.resources.execute
 import terminalexecutor.composeapp.generated.resources.export
-import terminalexecutor.composeapp.generated.resources.export_success_message
 import terminalexecutor.composeapp.generated.resources.file_already_exist
 import terminalexecutor.composeapp.generated.resources.file_not_found_message
 import terminalexecutor.composeapp.generated.resources.file_not_found_title
 import terminalexecutor.composeapp.generated.resources.import
-import terminalexecutor.composeapp.generated.resources.import_success_message
 import terminalexecutor.composeapp.generated.resources.open_file
 import terminalexecutor.composeapp.generated.resources.output
 import terminalexecutor.composeapp.generated.resources.params_text
@@ -82,16 +84,16 @@ fun MainScreen(viewModel: MainScreenViewModel) {
     val openFileTitle = stringResource(Res.string.open_file)
     val fileNotFoundMessage = stringResource(Res.string.file_not_found_message)
     val fileNotFoundTitle = stringResource(Res.string.file_not_found_title)
-    val exportSuccessMessage = stringResource(Res.string.export_success_message)
-    val importSuccessMessage = stringResource(Res.string.import_success_message)
     val selectWorkingDir = stringResource(Res.string.select_working_dir)
 
-    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.surface).padding(8.dp)) {
-        WorkingDirectory(
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.surface).padding(16.dp)) {
+        WorkingDirectoryAndThemeSwitch(
             uiState.workingDirectory,
+            defaultSwitchValue = viewModel.settings.getBoolean(IS_IN_DARK_MODE) ?: false,
             onDarkModeEnabled = { viewModel.changeTheme(isDark = it) },
             onChangeWorkingDir = {
-                folderSwingChooser(title = selectWorkingDir) {
+                val previousWorkingDir = viewModel.settings.getString(WORKING_DIR) ?:""
+                folderSwingChooser(title = selectWorkingDir, currentDir = File(previousWorkingDir)) {
                     viewModel.workingDirChange(it)
                 }
             }
@@ -118,22 +120,24 @@ fun MainScreen(viewModel: MainScreenViewModel) {
             allowExecution = uiState.allowExecution,
             executeState = uiState.executeState,
             onExport = {
+                val previousWorkingDir = viewModel.settings.getString(EXPORT_PATH) ?:""
                 saveFileSwingChooser(
                     title = exportTitle,
-                    currentDir = File(""),
+                    currentDir = File(previousWorkingDir),
                     initialFileName = "TerminalExecutorConfiguration.$JSON_EXTENSION",
-                    onFileConfirm = { viewModel.export(it, exportSuccessMessage) },
+                    onFileConfirm = { viewModel.export(it) },
                     fileNameExtensionFilter = FileNameExtensionFilter("JSON File (.$JSON_EXTENSION)", JSON_EXTENSION),
                     overwriteMessage = fileExistText,
                     overwriteTitle = fileExistTitle
                 )
             },
             onImport = {
+                val previousWorkingDir = viewModel.settings.getString(IMPORT_PATH) ?:""
                 openFileSwingChooser(
                     title = openFileTitle,
-                    currentDir = File(""),
+                    currentDir = File(previousWorkingDir),
                     initialFileName = "TerminalExecutorConfiguration.$JSON_EXTENSION",
-                    onFileConfirm = { viewModel.import(it, importSuccessMessage) },
+                    onFileConfirm = { viewModel.import(it) },
                     fileNameExtensionFilter = FileNameExtensionFilter("JSON File (.$JSON_EXTENSION)", JSON_EXTENSION),
                     fileDoesNotExistTitle = fileNotFoundTitle,
                     fileDoesNotExistMessage = fileNotFoundMessage
@@ -145,7 +149,7 @@ fun MainScreen(viewModel: MainScreenViewModel) {
 }
 
 @Composable
-private fun WorkingDirectory(currentDir: File, onDarkModeEnabled: (Boolean) -> Unit, onChangeWorkingDir: () -> Unit) {
+private fun WorkingDirectoryAndThemeSwitch(currentDir: File, defaultSwitchValue: Boolean, onDarkModeEnabled: (Boolean) -> Unit, onChangeWorkingDir: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         TextField(
             value = currentDir.toString(),
@@ -162,7 +166,7 @@ private fun WorkingDirectory(currentDir: File, onDarkModeEnabled: (Boolean) -> U
             colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface)
         )
         Spacer(modifier = Modifier.width(4.dp))
-        var checked by remember { mutableStateOf(false) }
+        var checked by remember { mutableStateOf(defaultSwitchValue) }
         Text(stringResource(Res.string.dark_mode), color = MaterialTheme.colors.onSurface)
         Spacer(modifier = Modifier.width(4.dp))
         Switch(
