@@ -51,7 +51,7 @@ The default working directory is set to the program's root directory. However, y
 - **[Coroutines](https://kotlinlang.org/docs/coroutines-overview.html)**: Used for asynchronous programming and concurrency.
 - **[Compose UI](https://developer.android.com/jetpack/androidx/releases/compose-ui)**: A modern UI toolkit for building native UIs across all platforms, including Android, iOS, and desktop, using a single codebase. Compose UI simplifies and accelerates UI development with its declarative approach and powerful features.
 - **[ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel)**: The ViewModel component, used for managing UI-related data in a lifecycle-conscious way. In this project, ViewModel is utilized specifically for desktop development, allowing data to survive configuration changes and aiding in separating the UI logic from the UI controller.
-- **Kotlin Serialization - JSON** A Kotlin library used for serializing and deserializing Kotlin objects to and from JSON.
+- **[Kotlin Serialization - JSON](https://kotlinlang.org/docs/serialization.html)** A Kotlin library used for serializing and deserializing Kotlin objects to and from JSON.
 
 ## Getting Started
 To build and run the project, follow these steps:
