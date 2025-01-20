@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
+val softwareVersion: String by extra { "1.0.0" }
+
 kotlin {
     jvm("desktop")
     
@@ -38,8 +40,19 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.bojan.terminalexecutor"
-            packageVersion = "1.0.0"
+            packageName = "TerminalExecutor"
+            packageVersion = softwareVersion
+            description = "Executes terminal commans for you"
+            copyright = "© 2025 Bojan Novakovic. All rights reserved."
+            vendor = "Bojan Novaković"
+            licenseFile.set(File(rootDir, "LICENSE"))
+            includeAllModules = true
         }
+    }
+}
+
+tasks.register("getVersionName") {
+    doLast {
+        println(softwareVersion)
     }
 }
