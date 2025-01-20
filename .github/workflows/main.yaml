@@ -46,11 +46,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: "Set up JDK 17 for ${{ matrix.platform }}"
+      - name: "Set up JDK for ${{ matrix.platform }}"
         uses: actions/setup-java@v4
         with:
-          java-version: 21
-          distribution: 'temurin'
+          java-version: 17
+          distribution: 'correto'
 
       - name: "Build and run tests"
         if: matrix.platform == 'windows'
