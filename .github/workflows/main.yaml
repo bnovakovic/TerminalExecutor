@@ -45,7 +45,7 @@ jobs:
       - name: "Set up JDK for ${{ matrix.platform }}"
         uses: actions/setup-java@v4
         with:
-          java-version: 21
+          java-version: 17
           distribution: 'temurin'
           token: ${{ secrets.BUILD_TOKEN_2 }}
           server-username: ${{ github.actor }}
