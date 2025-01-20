@@ -18,8 +18,6 @@ jobs:
       version: ${{ steps.create-environment-variables.outputs.version }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.BUILD_TOKEN_2 }}
       - name: Generate env vars
         id: create-environment-variables
         run: |
@@ -32,13 +30,13 @@ jobs:
         platform: [windows, linux, macos]
         include:
           - platform: windows
-          - runsOn: windows-latest
-          - zipCommand: 'Compress-Archive -Path composeApp\build\compose\binaries\main-release\app\TerminalExecutor -DestinationPath .\TerminalExecutor-Windows.zip'
-          - archiveName: TerminalExecutor-Windows.zip
+            runsOn: windows-latest
+            zipCommand: 'Compress-Archive -Path composeApp\build\compose\binaries\main-release\app\TerminalExecutor -DestinationPath .\TerminalExecutor-Windows.zip'
+            archiveName: TerminalExecutor-Windows.zip
           - platform: linux
-          - runsOn: ubuntu-latest
-          - zipCommand: 'tar -czf TerminalExecutor-Linux.tar.gz -C composeApp/build/compose/binaries/main-release/app .'
-          - archiveName: TerminalExecutor-Linux.tar.gz
+            runsOn: ubuntu-latest
+            zipCommand: 'tar -czf TerminalExecutor-Linux.tar.gz -C composeApp/build/compose/binaries/main-release/app .'
+            archiveName: TerminalExecutor-Linux.tar.gz
           - platform: macos
             runsOn: macos-latest
             zipCommand: 'tar -czf TerminalExecutor-Macos-Not-Notarized.tar.gz -C composeApp/build/compose/binaries/main-release/app .'
@@ -47,10 +45,7 @@ jobs:
     needs: getVersion
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.BUILD_TOKEN_2 }}
-
-      - name: "Set up JDK for ${{ matrix.platform }}"
+      - name: "Set up JDK 17 for ${{ matrix.platform }}"
         uses: actions/setup-java@v4
         with:
           java-version: 17
