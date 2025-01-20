@@ -49,8 +49,8 @@ jobs:
       - name: "Set up JDK 17 for ${{ matrix.platform }}"
         uses: actions/setup-java@v4
         with:
-          java-version: 17
-          distribution: 'adopt'
+          java-version: 21
+          distribution: 'temurin'
 
       - name: "Build and run tests"
         if: matrix.platform == 'windows'
