@@ -22,7 +22,9 @@ Additionally, users have the option to incorporate input parameters within the c
 For instance:
 
 Command: `git log -n $1 --author=$2`
+
 Parameters: `5,my_name`
+
 Output Command: `git log -n 5 --author=my_name`
 
 The final command will be displayed in parentheses within the command field. An illustrative example can be found in the image below.
@@ -57,7 +59,7 @@ To build and run the project, follow these steps:
 2. Open the project in Android Studio or your preferred IDE.
 3. Build the project and run the application on your desired platform using green play button in your IDE. If that does not work, you can use `./gradlew run` gradle task to to run the project, or use gradle task list `Tasks->compose desktop->run`.
 
-4. ## License
+## License
 This project is licensed under the [Apache-2.0 license](LICENSE).
 
 ## Contact
