@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.BUILD_TOKEN }}
+          token: ${{ secrets.BUILD_TOKEN_2 }}
       - name: Generate env vars
         id: create-environment-variables
         run: |
