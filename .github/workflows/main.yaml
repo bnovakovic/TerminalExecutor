@@ -50,7 +50,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: 'correto'
+          distribution: 'jetbrains'
 
       - name: "Build and run tests"
         if: matrix.platform == 'windows'
