@@ -18,7 +18,8 @@ jobs:
       version: ${{ steps.create-environment-variables.outputs.version }}
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          token: ${{ secrets.BUILD_TOKEN }}
       - name: Generate env vars
         id: create-environment-variables
         run: |
