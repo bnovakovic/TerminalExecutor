@@ -27,9 +27,11 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import terminalexecutor.composeapp.generated.resources.Res
 import terminalexecutor.composeapp.generated.resources.confirm_exit_changes
+import terminalexecutor.composeapp.generated.resources.launcher_icon
 import terminalexecutor.composeapp.generated.resources.no
 import terminalexecutor.composeapp.generated.resources.yes
 
@@ -46,7 +48,8 @@ fun main() = application {
             }
         },
         title = "TerminalExecutor",
-        state = state
+        state = state,
+        icon = painterResource(Res.drawable.launcher_icon)
     ) {
         App(appStateInfo)
         if (showConfirmExit) {

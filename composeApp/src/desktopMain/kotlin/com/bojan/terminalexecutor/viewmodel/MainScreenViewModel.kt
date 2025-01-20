@@ -9,7 +9,6 @@ import com.bojan.terminalexecutor.configmanagers.importList
 import com.bojan.terminalexecutor.enum.ExecuteState
 import com.bojan.terminalexecutor.enum.MainScreenDialog
 import com.bojan.terminalexecutor.ktx.replaceParams
-import com.bojan.terminalexecutor.settings.EXPORT_PATH
 import com.bojan.terminalexecutor.settings.IMPORT_PATH
 import com.bojan.terminalexecutor.settings.IS_IN_DARK_MODE
 import com.bojan.terminalexecutor.settings.TerminalExecutorSettings
