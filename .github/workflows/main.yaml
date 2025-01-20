@@ -48,7 +48,7 @@ jobs:
           java-version: 17
           distribution: 'jetbrains'
           token: ${{ secrets.BUILD_TOKEN_2 }}
-          server-username: ${{ GITHUB_ACTOR }}
+          server-username: ${{ github.actor }}
           server-password: ${{ secrets.BUILD_TOKEN_2 }}
 
       - name: "Build and run tests"
