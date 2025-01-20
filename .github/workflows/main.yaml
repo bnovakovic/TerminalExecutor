@@ -26,6 +26,7 @@ jobs:
           echo "version=$(${{github.workspace}}/gradlew -q getVersionName)" >> $GITHUB_OUTPUT
 
   build:
+    permissions: write-all
     strategy:
       matrix:
         platform: [macos]
