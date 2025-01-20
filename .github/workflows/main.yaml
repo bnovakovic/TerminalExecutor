@@ -27,7 +27,7 @@ jobs:
   build:
     strategy:
       matrix:
-        platform: [windows, linux, macos]
+        platform: [macos]
         include:
           - platform: windows
             runsOn: windows-latest
