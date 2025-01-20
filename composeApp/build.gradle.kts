@@ -38,6 +38,12 @@ compose.desktop {
     application {
         mainClass = "com.bojan.terminalexecutor.MainKt"
 
+        buildTypes.release.proguard {
+            isEnabled.set(false)
+            configurationFiles.from(File(rootDir, "proguard-rules.pro"))
+            joinOutputJars.set(true)
+        }
+
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "TerminalExecutor"
@@ -47,6 +53,17 @@ compose.desktop {
             vendor = "Bojan Novaković"
             licenseFile.set(File(rootDir, "LICENSE"))
             includeAllModules = true
+
+            val iconsFolder = project.file("icons")
+            macOS {
+                iconFile.set(iconsFolder.resolve("launcher_icon.icns"))
+            }
+            linux {
+                iconFile.set(iconsFolder.resolve("launcher_icon.png"))
+            }
+            windows {
+                iconFile.set(iconsFolder.resolve("launcher_icon.ico"))
+            }
         }
     }
 }
