@@ -47,6 +47,7 @@ jobs:
         with:
           java-version: 17
           distribution: 'jetbrains'
+          token: ${{ secrets.BUILD_TOKEN_2 }}
 
       - name: "Build and run tests"
         if: matrix.platform == 'windows'
