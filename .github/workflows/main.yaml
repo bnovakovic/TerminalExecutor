@@ -56,11 +56,6 @@ jobs:
           java-version: 17
           distribution: 'temurin'
 
-      - name: "Build and run tests"
-        if: matrix.platform == 'windows'
-        run: |
-          ./gradlew build
-
       - name: "Build v${{ needs.getVersion.outputs.version }} app for ${{ matrix.platform }}"
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         run: |
