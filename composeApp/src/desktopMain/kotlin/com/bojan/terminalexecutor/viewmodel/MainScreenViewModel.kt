@@ -104,7 +104,6 @@ class MainScreenViewModel(
     fun export(file: File) {
         _uiState.value = _uiState.value.copy(allowExecution = false)
         viewModelScope.launch {
-            settings.putString(EXPORT_PATH, file.toString())
             exportList(uiState.value.items.items, file)
                 .onSuccess {
                     _uiState.value = _uiState.value.copy(outputText = "")

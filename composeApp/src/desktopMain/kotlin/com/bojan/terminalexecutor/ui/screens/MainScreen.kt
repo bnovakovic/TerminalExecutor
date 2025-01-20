@@ -313,12 +313,15 @@ private fun ActionButtons(
         Spacer(modifier = Modifier.width(8.dp))
         Button(
             onClick = {
-                val previousWorkingDir = viewModel.settings.getString(EXPORT_PATH) ?:""
+                val previousWorkingDir = viewModel.settings.getString(EXPORT_PATH) ?: ""
                 saveFileSwingChooser(
                     title = exportTitle,
                     currentDir = File(previousWorkingDir),
                     initialFileName = "TerminalExecutorConfiguration.$JSON_EXTENSION",
-                    onFileConfirm = { viewModel.export(it) },
+                    onFileConfirm = {
+                        viewModel.export(it)
+                        viewModel.settings.putString(EXPORT_PATH, it.toString())
+                    },
                     fileNameExtensionFilter = FileNameExtensionFilter("JSON File (.$JSON_EXTENSION)", JSON_EXTENSION),
                     overwriteMessage = fileExistText,
                     overwriteTitle = fileExistTitle
