@@ -29,14 +29,6 @@ jobs:
       matrix:
         platform: [macos]
         include:
-          - platform: windows
-            runsOn: windows-latest
-            zipCommand: 'Compress-Archive -Path composeApp\build\compose\binaries\main-release\app\com.bojan.terminalexecutor -DestinationPath .\TerminalExecutor-Windows.zip'
-            archiveName: TerminalExecutor-Windows.zip
-          - platform: linux
-            runsOn: ubuntu-latest
-            zipCommand: 'tar -czf TerminalExecutor-Linux.tar.gz -C composeApp/build/compose/binaries/main-release/app .'
-            archiveName: TerminalExecutor-Linux.tar.gz
           - platform: macos
             runsOn: macos-latest
             zipCommand: 'tar -czf TerminalExecutor-Macos-Not-Notarized.tar.gz -C composeApp/build/compose/binaries/main-release/app .'
