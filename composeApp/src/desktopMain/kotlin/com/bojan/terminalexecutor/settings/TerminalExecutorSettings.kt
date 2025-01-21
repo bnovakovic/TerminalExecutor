@@ -19,6 +19,27 @@ class TerminalExecutorSettings {
         loadSettings()
     }
 
+    fun putMapItem(key: String, pair: Pair<String, String>) {
+        val oldMap = getMap(key)
+        oldMap[pair.first] = pair.second
+        properties[key] = oldMap.entries.joinToString(MAP_STRING_SEPARATOR)
+        saveToFile()
+        loadSettings()
+    }
+
+    fun getMap(key: String): MutableMap<String, String> {
+        val value = properties.getProperty(key)
+        if (value != null) {
+            val map = value.split(MAP_STRING_SEPARATOR).associate {
+                val (left, right) = it.split("=")
+                left to right
+            }
+            return map.toMutableMap()
+        } else {
+            return mutableMapOf()
+        }
+    }
+
     fun getString(key: String): String? = properties.getProperty(key)
 
     fun getBoolean(key: String): Boolean? = properties.getProperty(key)?.toBooleanStrictOrNull()
@@ -44,5 +65,6 @@ class TerminalExecutorSettings {
 
     companion object {
         const val SETTINGS_FILE_NAME = "TeSettings.tes"
+        const val MAP_STRING_SEPARATOR = ","
     }
 }

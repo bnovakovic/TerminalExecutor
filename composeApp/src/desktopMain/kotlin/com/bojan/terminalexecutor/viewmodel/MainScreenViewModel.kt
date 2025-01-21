@@ -9,6 +9,7 @@ import com.bojan.terminalexecutor.configmanagers.importList
 import com.bojan.terminalexecutor.enum.ExecuteState
 import com.bojan.terminalexecutor.enum.MainScreenDialog
 import com.bojan.terminalexecutor.ktx.replaceParams
+import com.bojan.terminalexecutor.settings.APP_PATHS
 import com.bojan.terminalexecutor.settings.IMPORT_PATH
 import com.bojan.terminalexecutor.settings.IS_IN_DARK_MODE
 import com.bojan.terminalexecutor.settings.TerminalExecutorSettings
@@ -77,7 +78,7 @@ class MainScreenViewModel(
             commandToExecute = commandsToArray
             _uiState.value = _uiState.value.copy(
                 command = generateCommandText(),
-                allowExecution = commands.isNotEmpty()
+                allowExecution = commands.isNotEmpty() && _uiState.value.executeState != ExecuteState.WORKING
             )
             doubleClickActive = true
             startDoubleClickTimerReset()
@@ -85,11 +86,11 @@ class MainScreenViewModel(
     }
 
     fun execute() {
-        if (commandToExecute.isNotEmpty()) {
+        if (commandToExecute.isNotEmpty() && _uiState.value.executeState != ExecuteState.WORKING) {
             _uiState.value = _uiState.value.copy(executeState = ExecuteState.WORKING, allowExecution = false, outputText = "")
             val addedParams = commandToExecute.replaceParams(currentParams)
             viewModelScope.launch {
-                executeCommand(addedParams, _uiState.value.workingDirectory)
+                executeCommand(addedParams, _uiState.value.workingDirectory, settings.getMap(APP_PATHS))
                     .onSuccess {
                         _uiState.value = _uiState.value.copy(outputText = it, executeState = ExecuteState.OK, allowExecution = true)
                     }
@@ -156,6 +157,15 @@ class MainScreenViewModel(
             _uiState.value = _uiState.value.copy(items = newItems)
         }
         changesMade()
+        hideDialogue()
+    }
+
+    fun showAddGroupDialogue() {
+        _uiState.value = _uiState.value.copy(mainScreenDialog = MainScreenDialog.AddAppPath)
+    }
+
+    fun addAppPath(app: String, path: String) {
+        settings.putMapItem(APP_PATHS, app to path)
         hideDialogue()
     }
 

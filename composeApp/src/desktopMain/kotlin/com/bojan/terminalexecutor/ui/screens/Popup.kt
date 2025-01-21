@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.bojan.terminalexecutor.enum.MainScreenDialog
+import com.bojan.terminalexecutor.settings.APP_PATHS
 import com.bojan.terminalexecutor.ui.uistates.MainScreenUiState
 import com.bojan.terminalexecutor.viewmodel.MainScreenViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -53,6 +54,18 @@ fun MainScreenPopup(
                     onCancel = { viewModel.hideDialogue() },
                     onAddItem = { viewModel.addItem(it) },
                     onAddGroup = { viewModel.addGroup(it) }
+                )
+            }
+        }
+
+        is MainScreenDialog.AddAppPath -> {
+            Dialog(onDismissRequest = {}) {
+                AddAppPathScreen(
+                    appMap = viewModel.settings.getMap(APP_PATHS),
+                    onCancel = { viewModel.hideDialogue() },
+                    onAddItem = { app, path ->
+                        viewModel.addAppPath(app, path)
+                    },
                 )
             }
         }

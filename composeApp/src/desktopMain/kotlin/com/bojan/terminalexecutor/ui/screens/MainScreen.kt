@@ -57,6 +57,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import terminalexecutor.composeapp.generated.resources.Res
 import terminalexecutor.composeapp.generated.resources.add
+import terminalexecutor.composeapp.generated.resources.add_app_path
 import terminalexecutor.composeapp.generated.resources.command
 import terminalexecutor.composeapp.generated.resources.copy_icon
 import terminalexecutor.composeapp.generated.resources.dark_mode
@@ -294,6 +295,13 @@ private fun ActionButtons(
         } else {
             Spacer(modifier = Modifier.weight(1.0f))
         }
+
+        Button(onClick = { viewModel.showAddGroupDialogue() }) {
+            Text(stringResource(Res.string.add_app_path))
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+
+
         Button(
             onClick = {
                 val previousWorkingDir = viewModel.settings.getString(IMPORT_PATH) ?: ""

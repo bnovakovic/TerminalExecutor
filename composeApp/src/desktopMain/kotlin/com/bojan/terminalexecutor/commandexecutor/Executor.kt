@@ -4,10 +4,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
-suspend fun executeCommand(command: Array<String>, workingDir: File): CommandResult {
+suspend fun executeCommand(command: Array<String>, workingDir: File, appPaths: Map<String, String>): CommandResult {
+
+    if (command.isEmpty()) {
+        return CommandResult(null, "Error: empty command")
+    }
     return try {
         withContext(Dispatchers.IO) {
-            val processBuilder = ProcessBuilder(*command)
+
+            val mutable = command.toMutableList()
+            val key = mutable.first()
+            val found = appPaths[key]
+            found?.let { foundPath ->
+                mutable.set(0, foundPath)
+            }
+
+            val processBuilder = ProcessBuilder(mutable.toList())
             processBuilder.redirectErrorStream(true)
             processBuilder.directory(workingDir)
             val process = processBuilder.start()
