@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
-val softwareVersion: String by extra { "1.0.0" }
+val softwareVersion: String by extra { "1.0.1" }
 
 kotlin {
     jvm("desktop")
