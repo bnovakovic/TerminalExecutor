@@ -2,6 +2,7 @@
 
 ## Table of content
 - [Overview](#overview)
+- [Known issues / Limitations](#known-issues--limitations)
 - [How to use](#how-to-use-the-terminal-executor)
 - [Import Export](#import--export)
 - [Tech Stack](#tech-stack)
@@ -13,6 +14,14 @@
 The Terminal Executor is a straightforward application developed using Kotlin Multiplatform (KMP). Its primary function is to execute console commands specified by the user.
 
 ![Git Log With Params](Documentation/Images/terminal_executor_overview.png)
+
+## Known issues / Limitations
+The MacOS build may encounter issues due to the application being sandboxed, which restricts access to the system's PATH. Consequently, even if applications are correctly added to the PATH, you may receive errors indicating that the application cannot be found.
+
+To resolve this issue, please click on the `Add app path` button. You will need to input the application name, ensuring it matches the expected name (e.g., adb). Additionally, you must provide the complete application path, such as `/Users/username/Android/SDK/platform-tools/adb`. If your executable includes an extension, it is essential to include it at the end of the path. For Windows users, the path format should appear as `C:/Android/SDK/platform-tools/adb.exe`.
+
+**Important Note**:
+This issue occurs exclusively with distributable builds. You will not encounter this issue if you build your application from Android Studio, or any other Integrated Development Environment (IDE).
 
 ## How to use the Terminal Executor?
 To utilize the Terminal Executor, users can begin by adding commands. There are two types of entries: Groups and Commands. While there is no limit to the nesting of groups, it is advisable to maintain an organized structure for ease of use. Please note that only groups can be added to the root list. Once a group has been created, any number of commands can be added beneath it.
