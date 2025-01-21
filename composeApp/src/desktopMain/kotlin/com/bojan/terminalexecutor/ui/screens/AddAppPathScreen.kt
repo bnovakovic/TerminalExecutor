@@ -13,12 +13,15 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.bojan.terminalexecutor.ktx.thinOutline
@@ -45,6 +48,7 @@ fun AddAppPathScreen(
         var pathText by remember { mutableStateOf("") }
 
         val confirmEnabled = appText.trim().isNotEmpty() && pathText.trim().isNotEmpty()
+        val focusRequester = remember { FocusRequester() }
 
         Text(stringResource(Res.string.add_app_description), color = MaterialTheme.colors.onSurface, textAlign = TextAlign.Center)
         Spacer(modifier.height(24.dp))
@@ -58,11 +62,11 @@ fun AddAppPathScreen(
                     pathText = found
                 }
             },
-            modifier = Modifier.width(800.dp).thinOutline(),
+            modifier = Modifier.width(800.dp).thinOutline().focusRequester(focusRequester),
             readOnly = false,
             label = { Text(stringResource(Res.string.app)) },
             singleLine = true,
-            colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface)
+            colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface),
         )
         Spacer(modifier.height(8.dp))
         TextField(
@@ -90,6 +94,10 @@ fun AddAppPathScreen(
             ) {
                 Text(stringResource(Res.string.ok))
             }
+        }
+
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
         }
     }
 }

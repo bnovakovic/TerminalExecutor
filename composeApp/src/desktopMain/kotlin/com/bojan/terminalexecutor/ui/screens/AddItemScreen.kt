@@ -16,12 +16,15 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.bojan.terminalexecutor.ktx.thinOutline
@@ -53,6 +56,7 @@ fun AddItemScreen(
         val addingCommand = radioOptions.indexOf(selectedOption) == 1
         var nameText by remember { mutableStateOf("") }
         var commandText by remember { mutableStateOf("") }
+        val focusRequester = remember { FocusRequester() }
 
         val confirmEnabled = if (!addingCommand) {
             nameText.trim().isNotEmpty()
@@ -104,7 +108,7 @@ fun AddItemScreen(
         TextField(
             value = nameText,
             onValueChange = { nameText = it },
-            modifier = Modifier.width(800.dp).thinOutline(),
+            modifier = Modifier.width(800.dp).thinOutline().focusRequester(focusRequester),
             readOnly = false,
             label = { Text(stringResource(Res.string.name)) },
             singleLine = true,
@@ -145,6 +149,9 @@ fun AddItemScreen(
             ) {
                 Text(stringResource(Res.string.ok))
             }
+        }
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
         }
     }
 }
