@@ -32,6 +32,7 @@ import terminalexecutor.composeapp.generated.resources.app
 import terminalexecutor.composeapp.generated.resources.cancel
 import terminalexecutor.composeapp.generated.resources.command
 import terminalexecutor.composeapp.generated.resources.ok
+import terminalexecutor.composeapp.generated.resources.path
 
 @Composable
 fun AddAppPathScreen(
@@ -74,7 +75,7 @@ fun AddAppPathScreen(
             onValueChange = { pathText = it },
             modifier = Modifier.width(800.dp).thinOutline(),
             readOnly = false,
-            label = { Text(stringResource(Res.string.command)) },
+            label = { Text(stringResource(Res.string.path)) },
             colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface),
         )
 
