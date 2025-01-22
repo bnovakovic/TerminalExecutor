@@ -18,7 +18,7 @@ The Terminal Executor is a straightforward application developed using Kotlin Mu
 ## Known issues / Limitations
 The MacOS build may encounter issues due to the application being sandboxed, which restricts access to the system's PATH. Consequently, even if applications are correctly added to the PATH, you may receive errors indicating that the application cannot be found.
 
-To resolve this issue, please click on the `Add app path` button. You will need to input the application name, ensuring it matches the expected name (e.g., `adb`). Additionally, you must provide the complete application path, such as `/Users/username/Android/SDK/platform-tools/adb`. If your executable includes an extension, it is essential to include it at the end of the path. For Windows users, the path format should appear as `C:/Android/SDK/platform-tools/adb.exe`.
+To resolve this issue, please click on the `Add app path` button. You will need to input the application name, ensuring it matches the expected name (e.g., `adb`). Additionally, you must provide the complete application path, such as `/Users/username/Android/SDK/platform-tools/adb`. If your executable includes an extension, it is essential to include it at the end of the path. You can retrieve `adb` full path by using `adb where` command in your computer terminal. For Windows users, example of `adb` path is:  `C:/Android/SDK/platform-tools/adb.exe`.
 
 **Important Note**:
 This issue occurs exclusively with distributable builds. You will not encounter this issue if you build your application from Android Studio, or any other Integrated Development Environment (IDE).
