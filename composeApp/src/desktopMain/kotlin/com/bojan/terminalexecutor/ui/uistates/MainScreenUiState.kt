@@ -12,5 +12,6 @@ data class MainScreenUiState(
     val executeState: ExecuteState,
     val mainScreenDialog: MainScreenDialog,
     val workingDirectory: File,
-    val changesMade: Boolean
+    val changesMade: Boolean,
+    val groupExpanded: Map<String, Boolean>
 )

@@ -30,7 +30,6 @@ import terminalexecutor.composeapp.generated.resources.Res
 import terminalexecutor.composeapp.generated.resources.add_app_description
 import terminalexecutor.composeapp.generated.resources.app
 import terminalexecutor.composeapp.generated.resources.cancel
-import terminalexecutor.composeapp.generated.resources.command
 import terminalexecutor.composeapp.generated.resources.ok
 import terminalexecutor.composeapp.generated.resources.path
 

@@ -44,7 +44,8 @@ class MainScreenViewModel(
             executeState = ExecuteState.NONE,
             mainScreenDialog = MainScreenDialog.None,
             workingDirectory = getCurrentDir(),
-            changesMade = false
+            changesMade = false,
+            groupExpanded = emptyMap()
         )
     )
     val uiState = _uiState.asStateFlow()
@@ -218,6 +219,13 @@ class MainScreenViewModel(
     fun saveChanges() {
         export(getConfigFile())
         changesSaved()
+    }
+
+    fun expandCollapseGroup(id: String, expanded: Boolean) {
+        val oldUiState = _uiState.value.copy()
+        val oldMapAsMutable = oldUiState.groupExpanded.toMutableMap()
+        oldMapAsMutable[id] = expanded
+        _uiState.value = _uiState.value.copy(groupExpanded = oldMapAsMutable.toMap())
     }
 
     private fun generateCommandText(): String {

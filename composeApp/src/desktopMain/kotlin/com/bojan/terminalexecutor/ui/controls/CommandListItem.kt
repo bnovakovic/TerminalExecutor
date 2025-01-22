@@ -15,10 +15,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -41,7 +37,12 @@ fun CommandListItem(
         Spacer(modifier = Modifier.width(10.dp))
         Text(name, color = MaterialTheme.colors.onSurface)
         Spacer(modifier = Modifier.weight(1.0f))
-        Image(Icons.Default.Delete, contentDescription = null, Modifier.size(16.dp).clickable { onDelete() }, colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface))
+        Image(
+            Icons.Default.Delete,
+            contentDescription = null,
+            Modifier.size(16.dp).clickable { onDelete() },
+            colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface)
+        )
         Spacer(modifier = Modifier.width(6.dp))
     }
 }
@@ -68,14 +69,20 @@ fun AddRootItem(
 fun CommandListGroup(
     groupUiState: ListItemGroupUiState,
     modifier: Modifier = Modifier,
+    expanded: Boolean,
+    expandedMap: Map<String, Boolean>,
+    onExpand: (String, Boolean) -> Unit,
     onDeleteItem: (ListItemGroupUiState, Int) -> Unit,
     onDeleteGroup: (ListItemGroupUiState) -> Unit,
     onAddItem: (String) -> Unit,
-    onItemSelected: (List<String>) -> Unit
+    onItemSelected: (List<String>) -> Unit,
 ) {
-    var expanded by remember { mutableStateOf(false) }
+
     Column(modifier = Modifier.fillMaxWidth().then(modifier)) {
-        Row(modifier = Modifier.clickable { expanded = !expanded }.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.clickable { onExpand(groupUiState.id, !expanded) }.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Icon(
                 painterResource(getIcon(expanded)),
                 contentDescription = null,
@@ -91,23 +98,35 @@ fun CommandListGroup(
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface)
             )
             Spacer(modifier = Modifier.weight(1.0f))
-            Image(Icons.Default.Delete, contentDescription = null, Modifier.size(16.dp).clickable { onDeleteGroup(groupUiState) }, colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface))
+            Image(
+                Icons.Default.Delete,
+                contentDescription = null,
+                Modifier.size(16.dp).clickable { onDeleteGroup(groupUiState) },
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface)
+            )
             Spacer(modifier = Modifier.width(6.dp))
         }
         if (expanded) {
             groupUiState.items.forEachIndexed { index, item ->
-                CommandListItem(item.name, Modifier.padding(start = 24.dp), onDelete = { onDeleteItem(groupUiState, index) }) { onItemSelected(item.commands) }
+                CommandListItem(
+                    item.name,
+                    Modifier.padding(start = 24.dp),
+                    onDelete = { onDeleteItem(groupUiState, index) }) { onItemSelected(item.commands) }
             }
             groupUiState.children.forEach { group ->
+                val isChildExpanded = expandedMap[group.id] ?: false
                 CommandListGroup(
                     groupUiState = group,
                     modifier = Modifier.padding(start = 24.dp),
                     onAddItem = { thisId ->
                         onAddItem(thisId)
                     },
+                    expanded = isChildExpanded,
+                    onExpand = { id, groupExpanded -> onExpand(id, groupExpanded) },
                     onItemSelected = onItemSelected,
                     onDeleteItem = onDeleteItem,
-                    onDeleteGroup = { onDeleteGroup(it) }
+                    onDeleteGroup = { onDeleteGroup(it) },
+                    expandedMap = expandedMap
                 )
             }
         }

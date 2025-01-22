@@ -98,7 +98,8 @@ fun MainScreen(viewModel: MainScreenViewModel) {
         ItemList(
             items = uiState.items.items,
             modifier = Modifier.weight(0.5f),
-            viewModel = viewModel
+            viewModel = viewModel,
+            expandedMap = uiState.groupExpanded
         )
         Spacer(modifier = Modifier.height(8.dp))
         InfoFields(
@@ -159,16 +160,21 @@ fun ItemList(
     items: List<ListItemGroupUiState>,
     modifier: Modifier,
     viewModel: MainScreenViewModel,
+    expandedMap: Map<String, Boolean>
 ) {
     val listState = rememberLazyListState()
+    val defaultValue = items.size == 1
     Row(modifier = Modifier.fillMaxWidth().thinOutline().then(modifier)) {
         if (items.isNotEmpty()) {
             LazyColumn(state = listState, modifier = Modifier.weight(1.0f)) {
                 itemsIndexed(items) { index, item ->
+                    val expanded = expandedMap[item.id] ?: defaultValue
                     item.apply {
                         CommandListGroup(
                             groupUiState = item,
                             modifier = Modifier,
+                            expanded = expanded,
+                            onExpand = { groupId, isExpanded -> viewModel.expandCollapseGroup(groupId, isExpanded) },
                             onAddItem = {
                                 viewModel.showAddItemDialogue(it)
                             },
@@ -176,7 +182,8 @@ fun ItemList(
                             onDeleteGroup = { viewModel.askDeleteGroup(it) },
                             onDeleteItem = { parent, index ->
                                 viewModel.askDeleteItem(parent, index)
-                            }
+                            },
+                            expandedMap = expandedMap
                         )
                     }
                     if (index == items.lastIndex) {
