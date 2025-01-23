@@ -36,7 +36,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
@@ -53,7 +52,6 @@ import com.bojan.terminalexecutor.swing.saveFileSwingChooser
 import com.bojan.terminalexecutor.ui.controls.AddRootItem
 import com.bojan.terminalexecutor.ui.controls.CommandListGroup
 import com.bojan.terminalexecutor.ui.controls.DeviceSelector
-import com.bojan.terminalexecutor.ui.controls.DropDownMenu
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.viewmodel.MainScreenViewModel
 import org.jetbrains.compose.resources.painterResource
@@ -64,15 +62,12 @@ import terminalexecutor.composeapp.generated.resources.add_app_path
 import terminalexecutor.composeapp.generated.resources.command
 import terminalexecutor.composeapp.generated.resources.copy_icon
 import terminalexecutor.composeapp.generated.resources.dark_mode
-import terminalexecutor.composeapp.generated.resources.device
 import terminalexecutor.composeapp.generated.resources.execute
 import terminalexecutor.composeapp.generated.resources.export
 import terminalexecutor.composeapp.generated.resources.file_already_exist
 import terminalexecutor.composeapp.generated.resources.file_not_found_message
 import terminalexecutor.composeapp.generated.resources.file_not_found_title
 import terminalexecutor.composeapp.generated.resources.import
-import terminalexecutor.composeapp.generated.resources.name
-import terminalexecutor.composeapp.generated.resources.none
 import terminalexecutor.composeapp.generated.resources.open_file
 import terminalexecutor.composeapp.generated.resources.output
 import terminalexecutor.composeapp.generated.resources.params_text
@@ -194,7 +189,7 @@ fun ItemList(
                             onAddItem = {
                                 viewModel.showAddItemDialogue(it)
                             },
-                            onItemSelected = { viewModel.itemSelected(it) },
+                            onItemSelected = { viewModel.changeCommand(it) },
                             onDeleteGroup = { viewModel.askDeleteGroup(it) },
                             onDeleteItem = { parent, index ->
                                 viewModel.askDeleteItem(parent, index)

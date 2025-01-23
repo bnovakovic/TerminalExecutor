@@ -3,15 +3,15 @@ package com.bojan.terminalexecutor.commandexecutor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.util.concurrent.TimeUnit
 
-suspend fun executeCommand(command: Array<String>, workingDir: File, appPaths: Map<String, String>): CommandResult {
+suspend fun executeCommand(command: List<String>, workingDir: File, appPaths: Map<String, String>): CommandResult {
 
     if (command.isEmpty()) {
         return CommandResult(null, "Error: empty command")
     }
     return try {
         withContext(Dispatchers.IO) {
-
             val mutable = command.toMutableList()
             val key = mutable.first()
             val found = appPaths[key]
@@ -25,7 +25,7 @@ suspend fun executeCommand(command: Array<String>, workingDir: File, appPaths: M
             val process = processBuilder.start()
 
             val output = process.inputStream.bufferedReader().use { it.readText() }
-            process.waitFor()
+            process.waitFor(5L, TimeUnit.SECONDS)
 
             if (process.exitValue() == 0) {
                 CommandResult(output, null)

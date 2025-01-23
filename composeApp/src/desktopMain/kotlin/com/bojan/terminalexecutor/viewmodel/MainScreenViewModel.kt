@@ -54,7 +54,7 @@ class MainScreenViewModel(
         )
     )
     val uiState = _uiState.asStateFlow()
-    private var commandToExecute: Array<String> = emptyArray()
+    private var commandToExecute: List<String> = emptyList()
     private var storedParentId: String? = null
     private var currentParams: String = ""
 
@@ -93,17 +93,18 @@ class MainScreenViewModel(
         _uiState.value = _uiState.value.copy(selectedDevice = deviceIndex)
     }
 
-    fun itemSelected(commands: List<String>) {
-        val commandsToArray = commands.toTypedArray()
+    fun changeCommand(commands: List<String>) {
 
         // Unfortunately double click either causes lag or issues in compose, so I had to use this non standard way of detecting it.
-        if (doubleClickActive && commandsToArray.contentEquals(commandToExecute) && _uiState.value.allowExecution) {
+        if (doubleClickActive && commands == commandToExecute && _uiState.value.allowExecution) {
             execute()
         } else {
-            commandToExecute = commandsToArray
+            val isAdbCommand = commands.isNotEmpty() && commands[0].lowercase() == ADB_COMMAND
+            commandToExecute = commands
             _uiState.value = _uiState.value.copy(
                 command = generateCommandText(),
-                allowExecution = commands.isNotEmpty() && _uiState.value.executeState != ExecuteState.WORKING
+                allowExecution = commands.isNotEmpty() && _uiState.value.executeState != ExecuteState.WORKING,
+                isAdbCommand = isAdbCommand
             )
             doubleClickActive = true
             startDoubleClickTimerReset()
@@ -113,8 +114,10 @@ class MainScreenViewModel(
     fun execute() {
         if (commandToExecute.isNotEmpty() && _uiState.value.executeState != ExecuteState.WORKING) {
             _uiState.value = _uiState.value.copy(executeState = ExecuteState.WORKING, allowExecution = false, outputText = "")
-            val addedParams = commandToExecute.replaceParams(currentParams)
+            val mutated = mutateAdbCommandForDeviceSelection(oldCommand = commandToExecute)
+            val addedParams = mutated.replaceParams(currentParams)
             viewModelScope.launch {
+                println("Executing: ${addedParams.joinToString(" ")}")
                 executeCommand(addedParams, _uiState.value.workingDirectory, settings.getMap(APP_PATHS))
                     .onSuccess {
                         _uiState.value = _uiState.value.copy(outputText = it, executeState = ExecuteState.OK, allowExecution = true)
@@ -231,7 +234,7 @@ class MainScreenViewModel(
             command = "",
             allowExecution = false
         )
-        commandToExecute = arrayOf()
+        commandToExecute = emptyList()
         changesMade()
     }
 
@@ -248,7 +251,7 @@ class MainScreenViewModel(
             command = "",
             allowExecution = false
         )
-        commandToExecute = arrayOf()
+        commandToExecute = emptyList()
         changesMade()
     }
 
@@ -300,10 +303,10 @@ class MainScreenViewModel(
         var deviceList = listOf<String>()
         executeCommand(GET_DEVICES_COMMAND, _uiState.value.workingDirectory, settings.getMap(APP_PATHS))
             .onSuccess { output ->
-                val outputAsList = output
+                val stringToUse = output.replace("\t", " ")
+                val outputAsList = stringToUse
                     .split("\n")
-                    .map { it.split(" ")
-                        .first() }
+                    .map { it.split(" ").first() }
                     .filter { it.trim().isNotBlank() }
                     .toMutableList()
                 outputAsList.removeAt(0)
@@ -323,14 +326,22 @@ class MainScreenViewModel(
         }
     }
 
-    fun updateCommand(commandText: String) {
+    private fun mutateAdbCommandForDeviceSelection(oldCommand: List<String>): List<String> {
+        val selectedDevice = _uiState.value.selectedDevice
+        val devices = _uiState.value.adbDevices
+        return if (selectedDevice != 0 && devices.size >= selectedDevice) {
+            listOf(ADB_COMMAND, ADB_DEVICE_PREFIX, devices[selectedDevice - 1]) + oldCommand.drop(1)
+        } else {
+            oldCommand
+        }
 
     }
-
     companion object {
         const val DOUBLE_CLICK_DELAY = 300L
         const val ADB_DEVICE_REFRESH_DELAY = 1000L
-        val GET_DEVICES_COMMAND = arrayOf("adb", "devices")
+        const val ADB_COMMAND = "adb"
+        const val ADB_DEVICE_PREFIX = "-s"
+        val GET_DEVICES_COMMAND = listOf(ADB_COMMAND, "devices")
 
     }
 }
