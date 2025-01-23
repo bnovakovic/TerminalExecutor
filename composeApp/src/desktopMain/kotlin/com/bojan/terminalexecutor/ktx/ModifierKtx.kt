@@ -8,8 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun Modifier.thinOutline(enabled: Boolean = true) = this.border(
+fun Modifier.thinOutline() = this.border(
     width = 1.dp,
-    color = if (enabled) MaterialTheme.colors.onSurface else MaterialTheme.colors.onSurface,
+    color = MaterialTheme.colors.onSurface,
     shape = RoundedCornerShape(2.dp)
 )

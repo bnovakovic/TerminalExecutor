@@ -33,4 +33,6 @@
     <string name="add_app_description">Add application custom path. It is mandatory to provide full executable path, including extension (if it has it). \n\nExample for adb:\n'App' field would be 'adb' while 'Path' field would be '/Users/username/android/platform-tools/adb.exe'</string>
     <string name="app">App</string>
     <string name="path">Path</string>
+    <string name="device">Device:</string>
+    <string name="none">None</string>
 </resources>

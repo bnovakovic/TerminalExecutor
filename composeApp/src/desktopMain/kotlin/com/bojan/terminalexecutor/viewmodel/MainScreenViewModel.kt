@@ -27,6 +27,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.Timer
+import java.util.TimerTask
 
 
 class MainScreenViewModel(
@@ -45,7 +47,10 @@ class MainScreenViewModel(
             mainScreenDialog = MainScreenDialog.None,
             workingDirectory = getCurrentDir(),
             changesMade = false,
-            groupExpanded = emptyMap()
+            groupExpanded = emptyMap(),
+            adbDevices = emptyList(),
+            selectedDevice = 0,
+            isAdbCommand = false
         )
     )
     val uiState = _uiState.asStateFlow()
@@ -55,6 +60,8 @@ class MainScreenViewModel(
 
     private var doubleClickActive: Boolean = false
     private var clickTimerJob: Job? = null
+    private val deviceCheckTimer: Timer = Timer()
+    private var deviceReadDone = true
 
     init {
         settings.loadSettings()
@@ -67,6 +74,23 @@ class MainScreenViewModel(
         settings.getString(WORKING_DIR)?.let {
             _uiState.value = _uiState.value.copy(workingDirectory = File(it))
         }
+
+        deviceCheckTimer.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                // just safety measure in case task is  stuck, so that we do not start stacking coroutines
+                if (deviceReadDone) {
+                    deviceReadDone = false
+                    viewModelScope.launch {
+                        devicesRefreshed(getDeviceList())
+                    }
+                }
+            }
+        }, 0, ADB_DEVICE_REFRESH_DELAY)
+
+    }
+
+    fun onAdbDeviceSelected(deviceIndex: Int) {
+        _uiState.value = _uiState.value.copy(selectedDevice = deviceIndex)
     }
 
     fun itemSelected(commands: List<String>) {
@@ -110,7 +134,7 @@ class MainScreenViewModel(
                     _uiState.value = _uiState.value.copy(outputText = "")
                 }
                 .onFailure {
-                    _uiState.value = _uiState.value.copy(outputText = it.message?: "")
+                    _uiState.value = _uiState.value.copy(outputText = it.message ?: "")
                 }
             _uiState.value = _uiState.value.copy(allowExecution = commandToExecute.isNotEmpty())
         }
@@ -200,7 +224,13 @@ class MainScreenViewModel(
 
     fun confirmDeleteGroup(groupUiState: ListItemGroupUiState) {
         val updatedItems = _uiState.value.items.removeGroup(groupUiState)
-        _uiState.value = _uiState.value.copy(items = updatedItems, mainScreenDialog = MainScreenDialog.None, outputText = "", command = "", allowExecution = false)
+        _uiState.value = _uiState.value.copy(
+            items = updatedItems,
+            mainScreenDialog = MainScreenDialog.None,
+            outputText = "",
+            command = "",
+            allowExecution = false
+        )
         commandToExecute = arrayOf()
         changesMade()
     }
@@ -211,7 +241,13 @@ class MainScreenViewModel(
 
     fun confirmDeleteItem(parent: ListItemGroupUiState, itemIndex: Int) {
         val updatedItems = _uiState.value.items.removeItem(parent, itemIndex)
-        _uiState.value = _uiState.value.copy(items = updatedItems, mainScreenDialog = MainScreenDialog.None, outputText = "", command = "", allowExecution = false)
+        _uiState.value = _uiState.value.copy(
+            items = updatedItems,
+            mainScreenDialog = MainScreenDialog.None,
+            outputText = "",
+            command = "",
+            allowExecution = false
+        )
         commandToExecute = arrayOf()
         changesMade()
     }
@@ -260,7 +296,41 @@ class MainScreenViewModel(
         }
     }
 
+    private suspend fun getDeviceList(): List<String> {
+        var deviceList = listOf<String>()
+        executeCommand(GET_DEVICES_COMMAND, _uiState.value.workingDirectory, settings.getMap(APP_PATHS))
+            .onSuccess { output ->
+                val outputAsList = output
+                    .split("\n")
+                    .map { it.split(" ")
+                        .first() }
+                    .filter { it.trim().isNotBlank() }
+                    .toMutableList()
+                outputAsList.removeAt(0)
+                deviceList = outputAsList
+            }
+        deviceReadDone = true
+        return deviceList
+    }
+
+    private fun devicesRefreshed(newDeviceList: List<String>) {
+        val oldDeviceList = _uiState.value.adbDevices
+        if (newDeviceList.size < oldDeviceList.size) {
+            // newDeviceList.size is OK because we always have "none" as an option
+            _uiState.value = _uiState.value.copy(adbDevices = newDeviceList, selectedDevice = newDeviceList.size)
+        } else {
+            _uiState.value = _uiState.value.copy(adbDevices = newDeviceList)
+        }
+    }
+
+    fun updateCommand(commandText: String) {
+
+    }
+
     companion object {
         const val DOUBLE_CLICK_DELAY = 300L
+        const val ADB_DEVICE_REFRESH_DELAY = 1000L
+        val GET_DEVICES_COMMAND = arrayOf("adb", "devices")
+
     }
 }

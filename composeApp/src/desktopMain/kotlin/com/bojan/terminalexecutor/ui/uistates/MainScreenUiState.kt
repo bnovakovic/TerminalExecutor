@@ -13,5 +13,8 @@ data class MainScreenUiState(
     val mainScreenDialog: MainScreenDialog,
     val workingDirectory: File,
     val changesMade: Boolean,
-    val groupExpanded: Map<String, Boolean>
+    val groupExpanded: Map<String, Boolean>,
+    val adbDevices: List<String>,
+    val selectedDevice: Int,
+    val isAdbCommand: Boolean,
 )
