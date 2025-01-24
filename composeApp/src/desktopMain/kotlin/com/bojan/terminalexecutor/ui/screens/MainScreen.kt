@@ -2,6 +2,7 @@ package com.bojan.terminalexecutor.ui.screens
 
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,14 +32,20 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.bojan.terminalexecutor.DraggableVerticalSpacer
 import com.bojan.terminalexecutor.constants.JSON_EXTENSION
 import com.bojan.terminalexecutor.enum.ExecuteState
 import com.bojan.terminalexecutor.ktx.thinOutline
@@ -46,6 +53,7 @@ import com.bojan.terminalexecutor.settings.EXPORT_PATH
 import com.bojan.terminalexecutor.settings.IMPORT_PATH
 import com.bojan.terminalexecutor.settings.IS_IN_DARK_MODE
 import com.bojan.terminalexecutor.settings.WORKING_DIR
+import com.bojan.terminalexecutor.spacing_s
 import com.bojan.terminalexecutor.swing.folderSwingChooser
 import com.bojan.terminalexecutor.swing.openFileSwingChooser
 import com.bojan.terminalexecutor.swing.saveFileSwingChooser
@@ -53,6 +61,9 @@ import com.bojan.terminalexecutor.ui.controls.AddRootItem
 import com.bojan.terminalexecutor.ui.controls.CommandListGroup
 import com.bojan.terminalexecutor.ui.controls.DeviceSelector
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
+import com.bojan.terminalexecutor.utils.clamp
+import com.bojan.terminalexecutor.utils.toDp
+import com.bojan.terminalexecutor.utils.toInt
 import com.bojan.terminalexecutor.viewmodel.MainScreenViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -79,11 +90,34 @@ import java.io.File
 import javax.swing.filechooser.FileNameExtensionFilter
 
 @Composable
-fun MainScreen(viewModel: MainScreenViewModel) {
+fun MainScreen(viewModel: MainScreenViewModel, windowHeight: Dp) {
     val uiState by viewModel.uiState.collectAsState()
     val selectWorkingDir = stringResource(Res.string.select_working_dir)
-    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.surface).padding(16.dp)) {
-        WorkingDirectoryAndThemeSwitch(
+    var offset by remember { mutableIntStateOf(0) }
+    val maxOffset = 150.0f
+
+    val intDefaultHeight = windowHeight.toInt()
+    var availableHeight by remember { mutableIntStateOf(intDefaultHeight) }
+
+    val defaultItemSpacing = spacing_s
+
+    val actionButtonsHeight = 50.dp.toInt()
+    val topBarHeight = 60.dp.toInt()
+    val remainingHeight = availableHeight - topBarHeight - actionButtonsHeight
+    val itemListHeight = (remainingHeight / 2) - defaultItemSpacing.toInt() + offset
+    val infoFieldsHeight = (remainingHeight / 2) - defaultItemSpacing.toInt() - offset
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.surface)
+            .padding(defaultItemSpacing)
+            .onSizeChanged { size ->
+                availableHeight = size.height
+            }
+    ) {
+        TopBar(
+            modifier = Modifier.height(topBarHeight.toDp()),
             deviceListVisible = uiState.isAdbCommand,
             devices = uiState.adbDevices,
             selectedDevice = uiState.selectedDevice,
@@ -98,22 +132,24 @@ fun MainScreen(viewModel: MainScreenViewModel) {
                 }
             }
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(defaultItemSpacing))
         ItemList(
             items = uiState.items.items,
-            modifier = Modifier.weight(0.5f),
+            modifier = Modifier.height(itemListHeight.toDp()),
             viewModel = viewModel,
             expandedMap = uiState.groupExpanded
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        DraggableVerticalSpacer(defaultItemSpacing, maxOffset, { offset =  it.toInt() })
         InfoFields(
-            modifier = Modifier.weight(0.5f),
+            modifier = Modifier.height(infoFieldsHeight.toDp()),
             command = uiState.command,
             output = uiState.outputText,
-            viewModel = viewModel
+            viewModel = viewModel,
+            itemSpacing = defaultItemSpacing
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(defaultItemSpacing))
         ActionButtons(
+            modifier = Modifier.height(actionButtonsHeight.toDp()),
             allowExecution = uiState.allowExecution,
             executeState = uiState.executeState,
             hasChanges = uiState.changesMade,
@@ -124,7 +160,8 @@ fun MainScreen(viewModel: MainScreenViewModel) {
 }
 
 @Composable
-private fun WorkingDirectoryAndThemeSwitch(
+private fun TopBar(
+    modifier: Modifier,
     deviceListVisible: Boolean,
     devices: List<String>,
     selectedDevice: Int,
@@ -134,7 +171,10 @@ private fun WorkingDirectoryAndThemeSwitch(
     onDarkModeEnabled: (Boolean) -> Unit,
     onChangeWorkingDir: () -> Unit
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().then(modifier)
+    ) {
         TextField(
             value = currentDir.toString(),
             onValueChange = {},
@@ -218,6 +258,7 @@ fun InfoFields(
     command: String,
     output: String,
     viewModel: MainScreenViewModel,
+    itemSpacing: Dp
 ) {
     val clipboardManager = LocalClipboardManager.current
     Column(modifier = Modifier.fillMaxWidth().then(modifier)) {
@@ -234,12 +275,12 @@ fun InfoFields(
             label = { Text(stringResource(Res.string.params_text)) },
             colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface),
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(itemSpacing))
 
         TextField(
             value = command,
             onValueChange = {},
-            modifier = Modifier.height(100.dp).fillMaxWidth().thinOutline(),
+            modifier = Modifier.weight(1.0f).fillMaxWidth().thinOutline(),
             readOnly = true,
             label = { Text(stringResource(Res.string.command)) },
             trailingIcon = {
@@ -249,7 +290,7 @@ fun InfoFields(
             },
             colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface)
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(itemSpacing))
         TextField(
             value = output,
             onValueChange = {},
@@ -268,6 +309,7 @@ fun InfoFields(
 
 @Composable
 private fun ActionButtons(
+    modifier: Modifier,
     viewModel: MainScreenViewModel,
     allowExecution: Boolean,
     hasChanges: Boolean,
@@ -280,11 +322,11 @@ private fun ActionButtons(
     val fileNotFoundMessage = stringResource(Res.string.file_not_found_message)
     val fileNotFoundTitle = stringResource(Res.string.file_not_found_title)
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
         Button(onClick = { viewModel.execute() }, enabled = allowExecution) {
             Text(stringResource(Res.string.execute))
         }
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(spacing_s))
         when (executeState) {
             ExecuteState.NONE -> {}
             ExecuteState.WORKING -> {
@@ -309,7 +351,7 @@ private fun ActionButtons(
             Button(onClick = { viewModel.saveChanges() }) {
                 Text(stringResource(Res.string.save))
             }
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(spacing_s))
         } else {
             Spacer(modifier = Modifier.weight(1.0f))
         }
@@ -317,7 +359,7 @@ private fun ActionButtons(
         Button(onClick = { viewModel.showAddGroupDialogue() }) {
             Text(stringResource(Res.string.add_app_path))
         }
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(spacing_s))
 
 
         Button(
@@ -336,7 +378,7 @@ private fun ActionButtons(
         ) {
             Text(stringResource(Res.string.import))
         }
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(spacing_s))
         Button(
             onClick = {
                 val previousWorkingDir = viewModel.settings.getString(EXPORT_PATH) ?: ""
@@ -357,4 +399,6 @@ private fun ActionButtons(
             Text(stringResource(Res.string.export))
         }
     }
+
+
 }

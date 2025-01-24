@@ -36,7 +36,8 @@ import terminalexecutor.composeapp.generated.resources.no
 import terminalexecutor.composeapp.generated.resources.yes
 
 fun main() = application {
-    val state = rememberWindowState(size = DpSize(1280.dp, 760.dp), position = WindowPosition.Aligned(Alignment.Center))
+    val windowHeight = 760.dp
+    val state = rememberWindowState(size = DpSize(1280.dp, windowHeight), position = WindowPosition.Aligned(Alignment.Center))
     val appStateInfo by remember { mutableStateOf(AppStateInfo(changesMade = false)) }
     var showConfirmExit by remember { mutableStateOf(false) }
     Window(
@@ -51,7 +52,7 @@ fun main() = application {
         state = state,
         icon = painterResource(Res.drawable.launcher_icon)
     ) {
-        App(appStateInfo)
+        App(appStateInfo, state.size.height)
         if (showConfirmExit) {
             confirmExit(onYes = { this@application.exitApplication() }, onNo = { showConfirmExit = false })
         }
