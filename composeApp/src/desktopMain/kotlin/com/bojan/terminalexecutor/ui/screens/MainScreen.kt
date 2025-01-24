@@ -95,7 +95,8 @@ import javax.swing.filechooser.FileNameExtensionFilter
 fun MainScreen(viewModel: MainScreenViewModel, windowHeight: Dp) {
     val uiState by viewModel.uiState.collectAsState()
     val selectWorkingDir = stringResource(Res.string.select_working_dir)
-    var offset by remember { mutableIntStateOf(viewModel.settings.getInt(MAIN_SCREEN_OFFSET) ?: 0) }
+    val loadedOffset = viewModel.settings.getInt(MAIN_SCREEN_OFFSET) ?: 0
+    var offset by remember { mutableIntStateOf(loadedOffset) }
     viewModel.settings.putInt(MAIN_SCREEN_OFFSET, offset)
     val intDefaultHeight = windowHeight.toInt()
     var availableHeight by remember { mutableIntStateOf(intDefaultHeight) }
@@ -140,7 +141,7 @@ fun MainScreen(viewModel: MainScreenViewModel, windowHeight: Dp) {
             viewModel = viewModel,
             expandedMap = uiState.groupExpanded
         )
-        DraggableVerticalSpacer(size = defaultItemSpacing, onDragOffset = { offset =  it.toInt() })
+        DraggableVerticalSpacer(size = defaultItemSpacing, defaultOffset = loadedOffset.toFloat(), onDragOffset = { offset =  it.toInt() })
         InfoFields(
             height =infoFieldsHeight.toDp(),
             command = uiState.command,
@@ -261,7 +262,8 @@ fun InfoFields(
     viewModel: MainScreenViewModel,
     itemSpacing: Dp
 ) {
-    var offset by remember { mutableIntStateOf(viewModel.settings.getInt(INPUT_FIELDS_SCREEN_OFFSET) ?: 0) }
+    val loadedOffset = viewModel.settings.getInt(INPUT_FIELDS_SCREEN_OFFSET) ?: 0
+    var offset by remember { mutableIntStateOf(loadedOffset) }
     viewModel.settings.putInt(INPUT_FIELDS_SCREEN_OFFSET, offset)
 
     val availableHeight = height.toInt()
@@ -301,7 +303,7 @@ fun InfoFields(
             },
             colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface)
         )
-        DraggableVerticalSpacer(itemSpacing, onDragOffset = { offset = it.toInt() })
+        DraggableVerticalSpacer(size = itemSpacing, defaultOffset = loadedOffset.toFloat(), onDragOffset = { offset = it.toInt() })
         TextField(
             value = output,
             onValueChange = {},

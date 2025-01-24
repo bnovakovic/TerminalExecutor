@@ -23,9 +23,9 @@ val spacing_xxl = 40.dp
 val spacing_xxxl = 64.dp
 
 @Composable
-fun DraggableVerticalSpacer(size: Dp, maxOffset: Float = 0.0f, onDragOffset: (Float) -> Unit) {
+fun DraggableVerticalSpacer(size: Dp, maxOffset: Float = 0.0f, defaultOffset: Float, onDragOffset: (Float) -> Unit) {
     Box {
-        var offsetY = 0.0f
+        var offsetY = defaultOffset
 
         Box(
             modifier = Modifier
