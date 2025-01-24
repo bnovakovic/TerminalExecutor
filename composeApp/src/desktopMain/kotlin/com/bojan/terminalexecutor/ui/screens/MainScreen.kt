@@ -94,7 +94,6 @@ fun MainScreen(viewModel: MainScreenViewModel, windowHeight: Dp) {
     val uiState by viewModel.uiState.collectAsState()
     val selectWorkingDir = stringResource(Res.string.select_working_dir)
     var offset by remember { mutableIntStateOf(0) }
-    val maxOffset = 150.0f
 
     val intDefaultHeight = windowHeight.toInt()
     var availableHeight by remember { mutableIntStateOf(intDefaultHeight) }
@@ -139,9 +138,9 @@ fun MainScreen(viewModel: MainScreenViewModel, windowHeight: Dp) {
             viewModel = viewModel,
             expandedMap = uiState.groupExpanded
         )
-        DraggableVerticalSpacer(defaultItemSpacing, maxOffset, { offset =  it.toInt() })
+        DraggableVerticalSpacer(size = defaultItemSpacing, onDragOffset = { offset =  it.toInt() })
         InfoFields(
-            modifier = Modifier.height(infoFieldsHeight.toDp()),
+            height =infoFieldsHeight.toDp(),
             command = uiState.command,
             output = uiState.outputText,
             viewModel = viewModel,
@@ -254,14 +253,23 @@ fun ItemList(
 
 @Composable
 fun InfoFields(
-    modifier: Modifier,
+    height: Dp,
     command: String,
     output: String,
     viewModel: MainScreenViewModel,
     itemSpacing: Dp
 ) {
+    var offset by remember { mutableIntStateOf(0) }
+
+    val availableHeight = height.toInt()
+    val paramsHeight = 55.dp.toInt()
+
+    val remainingHeight = availableHeight - paramsHeight - itemSpacing.toInt()
+    val commandHeight = (remainingHeight / 2) + offset - (itemSpacing.toInt() * 2)
+    val outputHeight = (remainingHeight / 2) - offset - itemSpacing.toInt()
+
     val clipboardManager = LocalClipboardManager.current
-    Column(modifier = Modifier.fillMaxWidth().then(modifier)) {
+    Column(modifier = Modifier.fillMaxWidth().height(height)) {
         var paramsText by remember { mutableStateOf("") }
         TextField(
             value = paramsText,
@@ -269,7 +277,7 @@ fun InfoFields(
                 paramsText = it
                 viewModel.paramsTextUpdated(it)
             },
-            modifier = Modifier.fillMaxWidth().thinOutline(),
+            modifier = Modifier.fillMaxWidth().thinOutline().height(paramsHeight.toDp()),
             readOnly = false,
             singleLine = true,
             label = { Text(stringResource(Res.string.params_text)) },
@@ -280,7 +288,7 @@ fun InfoFields(
         TextField(
             value = command,
             onValueChange = {},
-            modifier = Modifier.weight(1.0f).fillMaxWidth().thinOutline(),
+            modifier = Modifier.height(commandHeight.toDp()).fillMaxWidth().thinOutline(),
             readOnly = true,
             label = { Text(stringResource(Res.string.command)) },
             trailingIcon = {
@@ -290,11 +298,11 @@ fun InfoFields(
             },
             colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface)
         )
-        Spacer(modifier = Modifier.height(itemSpacing))
+        DraggableVerticalSpacer(itemSpacing, onDragOffset = { offset = it.toInt() })
         TextField(
             value = output,
             onValueChange = {},
-            modifier = Modifier.weight(1.0f).fillMaxWidth().thinOutline(),
+            modifier = Modifier.height(outputHeight.toDp()).fillMaxWidth().thinOutline(),
             readOnly = true,
             label = { Text(stringResource(Res.string.output)) },
             trailingIcon = {

@@ -23,7 +23,7 @@ val spacing_xxl = 40.dp
 val spacing_xxxl = 64.dp
 
 @Composable
-fun DraggableVerticalSpacer(size: Dp, maxOffset: Float, onDragOffset: (Float) -> Unit) {
+fun DraggableVerticalSpacer(size: Dp, maxOffset: Float = 0.0f, onDragOffset: (Float) -> Unit) {
     Box {
         var offsetY = 0.0f
 
@@ -31,7 +31,11 @@ fun DraggableVerticalSpacer(size: Dp, maxOffset: Float, onDragOffset: (Float) ->
             modifier = Modifier
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
-                        offsetY = (offsetY + dragAmount.y).clamp(maxOffset * -1, maxOffset)
+                        if (maxOffset > 0) {
+                            offsetY = (offsetY + dragAmount.y).clamp(maxOffset * -1, maxOffset)
+                        } else {
+                            offsetY += dragAmount.y
+                        }
                         onDragOffset(offsetY)
                         change.consume()
                     }
