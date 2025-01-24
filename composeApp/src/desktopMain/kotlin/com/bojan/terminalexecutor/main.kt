@@ -35,11 +35,13 @@ import com.bojan.terminalexecutor.settings.WINDOW_HEIGHT
 import com.bojan.terminalexecutor.settings.WINDOW_WIDTH
 import com.bojan.terminalexecutor.settings.WINDOW_X
 import com.bojan.terminalexecutor.settings.WINDOW_Y
+import com.bojan.terminalexecutor.utils.PROJECT_VERSION
 import com.bojan.terminalexecutor.utils.toDp
 import com.bojan.terminalexecutor.utils.toInt
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import terminalexecutor.composeapp.generated.resources.Res
+import terminalexecutor.composeapp.generated.resources.app_window_title
 import terminalexecutor.composeapp.generated.resources.confirm_exit_changes
 import terminalexecutor.composeapp.generated.resources.launcher_icon
 import terminalexecutor.composeapp.generated.resources.no
@@ -72,6 +74,7 @@ fun main() = application {
 
     val appStateInfo by remember { mutableStateOf(AppStateInfo(changesMade = false)) }
     var showConfirmExit by remember { mutableStateOf(false) }
+    val windowTitle = stringResource(Res.string.app_window_title, PROJECT_VERSION)
     Window(
         onCloseRequest = {
             if (appStateInfo.changesMade) {
@@ -80,7 +83,7 @@ fun main() = application {
                 appExit(this)
             }
         },
-        title = "Terminal Executor",
+        title = windowTitle,
         state = state,
         icon = painterResource(Res.drawable.launcher_icon)
     ) {

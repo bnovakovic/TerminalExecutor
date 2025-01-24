@@ -1,3 +1,4 @@
+import com.github.javaparser.JavaParserBuild.PROJECT_VERSION
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -7,7 +8,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
-val softwareVersion: String by extra { "1.0.1" }
+val softwareVersion: String by extra { PROJECT_VERSION }
 
 kotlin {
     jvm("desktop")

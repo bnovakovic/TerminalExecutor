@@ -1,4 +1,5 @@
 <resources>
+    <string name="app_window_title">Terminal Executor - %1$s</string>
     <string name="export">Export</string>
     <string name="import">Import</string>
     <string name="execute">Execute</string>
