@@ -51,7 +51,9 @@ import com.bojan.terminalexecutor.enum.ExecuteState
 import com.bojan.terminalexecutor.ktx.thinOutline
 import com.bojan.terminalexecutor.settings.EXPORT_PATH
 import com.bojan.terminalexecutor.settings.IMPORT_PATH
+import com.bojan.terminalexecutor.settings.INPUT_FIELDS_SCREEN_OFFSET
 import com.bojan.terminalexecutor.settings.IS_IN_DARK_MODE
+import com.bojan.terminalexecutor.settings.MAIN_SCREEN_OFFSET
 import com.bojan.terminalexecutor.settings.WORKING_DIR
 import com.bojan.terminalexecutor.spacing_s
 import com.bojan.terminalexecutor.swing.folderSwingChooser
@@ -93,8 +95,8 @@ import javax.swing.filechooser.FileNameExtensionFilter
 fun MainScreen(viewModel: MainScreenViewModel, windowHeight: Dp) {
     val uiState by viewModel.uiState.collectAsState()
     val selectWorkingDir = stringResource(Res.string.select_working_dir)
-    var offset by remember { mutableIntStateOf(0) }
-
+    var offset by remember { mutableIntStateOf(viewModel.settings.getInt(MAIN_SCREEN_OFFSET) ?: 0) }
+    viewModel.settings.putInt(MAIN_SCREEN_OFFSET, offset)
     val intDefaultHeight = windowHeight.toInt()
     var availableHeight by remember { mutableIntStateOf(intDefaultHeight) }
 
@@ -259,7 +261,8 @@ fun InfoFields(
     viewModel: MainScreenViewModel,
     itemSpacing: Dp
 ) {
-    var offset by remember { mutableIntStateOf(0) }
+    var offset by remember { mutableIntStateOf(viewModel.settings.getInt(INPUT_FIELDS_SCREEN_OFFSET) ?: 0) }
+    viewModel.settings.putInt(INPUT_FIELDS_SCREEN_OFFSET, offset)
 
     val availableHeight = height.toInt()
     val paramsHeight = 55.dp.toInt()
