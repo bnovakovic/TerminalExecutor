@@ -10,13 +10,16 @@ class TerminalExecutorSettings {
     fun putString(key: String, value: String) {
         properties[key] = value
         saveToFile()
-        loadSettings()
+    }
+
+    fun putInt(key: String, value: Int) {
+        properties[key] = value.toString()
+        saveToFile()
     }
 
     fun putBoolean(key: String, value: Boolean) {
         properties[key] = value.toString()
         saveToFile()
-        loadSettings()
     }
 
     fun putMapItem(key: String, pair: Pair<String, String>) {
@@ -24,7 +27,6 @@ class TerminalExecutorSettings {
         oldMap[pair.first] = pair.second
         properties[key] = oldMap.entries.joinToString(MAP_STRING_SEPARATOR)
         saveToFile()
-        loadSettings()
     }
 
     fun getMap(key: String): MutableMap<String, String> {
@@ -43,6 +45,8 @@ class TerminalExecutorSettings {
     fun getString(key: String): String? = properties.getProperty(key)
 
     fun getBoolean(key: String): Boolean? = properties.getProperty(key)?.toBooleanStrictOrNull()
+
+    fun getInt(key: String): Int? = properties.getProperty(key)?.toIntOrNull()
 
     private fun saveToFile() {
         val settingsFile = getSettingsFile()

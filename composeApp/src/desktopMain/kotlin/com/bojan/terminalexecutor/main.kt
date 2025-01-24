@@ -24,9 +24,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowPosition
+import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.bojan.terminalexecutor.settings.IS_MAXIMIZED
+import com.bojan.terminalexecutor.settings.TerminalExecutorSettings
+import com.bojan.terminalexecutor.settings.WINDOW_HEIGHT
+import com.bojan.terminalexecutor.settings.WINDOW_WIDTH
+import com.bojan.terminalexecutor.settings.WINDOW_X
+import com.bojan.terminalexecutor.settings.WINDOW_Y
+import com.bojan.terminalexecutor.utils.toDp
+import com.bojan.terminalexecutor.utils.toInt
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import terminalexecutor.composeapp.generated.resources.Res
@@ -36,8 +46,30 @@ import terminalexecutor.composeapp.generated.resources.no
 import terminalexecutor.composeapp.generated.resources.yes
 
 fun main() = application {
-    val windowHeight = 760.dp
-    val state = rememberWindowState(size = DpSize(1280.dp, windowHeight), position = WindowPosition.Aligned(Alignment.Center))
+    val settings by remember { mutableStateOf(TerminalExecutorSettings()) }
+    settings.loadSettings()
+    val windowHeight = settings.getInt(WINDOW_HEIGHT)?.toDp() ?: 760.dp
+    val windowWidth = settings.getInt(WINDOW_WIDTH)?.toDp() ?: 1280.dp
+
+    val windowX = settings.getInt(WINDOW_X)
+    val windowY = settings.getInt(WINDOW_Y)
+
+    val position = if (windowY != null && windowX != null) {
+        WindowPosition.Absolute(windowX.toDp(), windowY.toDp())
+    } else {
+        WindowPosition.Aligned(Alignment.Center)
+    }
+
+    val isMaximized = settings.getBoolean(IS_MAXIMIZED) ?: false
+    val placement = if (isMaximized) {
+        WindowPlacement.Maximized
+    } else {
+        WindowPlacement.Floating
+    }
+
+
+    val state = rememberWindowState(size = DpSize(windowWidth, windowHeight), position = position, placement = placement)
+
     val appStateInfo by remember { mutableStateOf(AppStateInfo(changesMade = false)) }
     var showConfirmExit by remember { mutableStateOf(false) }
     Window(
@@ -48,11 +80,12 @@ fun main() = application {
                 appExit(this)
             }
         },
-        title = "TerminalExecutor",
+        title = "Terminal Executor",
         state = state,
         icon = painterResource(Res.drawable.launcher_icon)
     ) {
-        App(appStateInfo, state.size.height)
+        saveWindowState(state, settings)
+        App(appStateInfo, state.size.height, settings)
         if (showConfirmExit) {
             confirmExit(onYes = { this@application.exitApplication() }, onNo = { showConfirmExit = false })
         }
@@ -84,5 +117,18 @@ private fun confirmExit(onYes: () -> Unit, onNo: () -> Unit) {
                 Spacer(modifier = Modifier.weight(1.0f))
             }
         }
+    }
+}
+
+@Composable
+private fun saveWindowState(state: WindowState, settings: TerminalExecutorSettings) {
+    val isMaximized = state.placement == WindowPlacement.Maximized
+    settings.putBoolean(IS_MAXIMIZED, isMaximized)
+
+    if (!isMaximized) {
+        settings.putInt(WINDOW_WIDTH, state.size.width.toInt())
+        settings.putInt(WINDOW_HEIGHT, state.size.height.toInt())
+        settings.putInt(WINDOW_X, state.position.x.toInt())
+        settings.putInt(WINDOW_Y, state.position.y.toInt())
     }
 }

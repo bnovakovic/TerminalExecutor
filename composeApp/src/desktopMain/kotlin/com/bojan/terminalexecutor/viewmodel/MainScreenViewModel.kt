@@ -33,7 +33,7 @@ import java.util.TimerTask
 
 class MainScreenViewModel(
     val idGenerator: RandomIdGenerator = RandomIdGenerator(),
-    val settings: TerminalExecutorSettings = TerminalExecutorSettings(),
+    val settings: TerminalExecutorSettings,
     val appStateInfo: AppStateInfo,
     private val onThemeChanged: (Boolean) -> Unit
 ) : ViewModel() {
