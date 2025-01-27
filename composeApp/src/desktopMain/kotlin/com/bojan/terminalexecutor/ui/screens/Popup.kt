@@ -1,6 +1,7 @@
 package com.bojan.terminalexecutor.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,7 +12,14 @@ import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -92,7 +100,23 @@ fun MainScreenPopup(
 
 @Composable
 fun YesNoPopupScreen(message: String, onYes: () -> Unit, onNo: () -> Unit) {
-    Column(modifier = Modifier.background(MaterialTheme.colors.surface).padding(16.dp).width(400.dp)) {
+    val focusRequester = remember { FocusRequester() }
+    Column(
+        modifier = Modifier
+            .background(MaterialTheme.colors.surface)
+            .padding(16.dp)
+            .width(400.dp)
+            .focusable(true)
+            .focusRequester(focusRequester)
+            .onKeyEvent { keyEvent ->
+                if (keyEvent.key == Key.Escape) {
+                    onNo()
+                    true
+                } else {
+                    false
+                }
+            },
+    ) {
         Text(message, color = MaterialTheme.colors.onSurface, textAlign = TextAlign.Center)
         Spacer(modifier = Modifier.height(8.dp))
         Row {
@@ -106,5 +130,9 @@ fun YesNoPopupScreen(message: String, onYes: () -> Unit, onNo: () -> Unit) {
             }
             Spacer(modifier = Modifier.weight(1.0f))
         }
+    }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
 }

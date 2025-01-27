@@ -25,6 +25,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.bojan.terminalexecutor.ktx.thinOutline
@@ -108,7 +111,14 @@ fun AddItemScreen(
         TextField(
             value = nameText,
             onValueChange = { nameText = it },
-            modifier = Modifier.width(800.dp).thinOutline().focusRequester(focusRequester),
+            modifier = Modifier.width(800.dp).thinOutline().focusRequester(focusRequester).onKeyEvent { keyEvent ->
+                if (keyEvent.key == Key.Escape) {
+                    onCancel()
+                    true
+                } else {
+                    false
+                }
+            },
             readOnly = false,
             label = { Text(stringResource(Res.string.name)) },
             singleLine = true,
@@ -122,7 +132,14 @@ fun AddItemScreen(
             TextField(
                 value = commandText,
                 onValueChange = { commandText = it },
-                modifier = Modifier.width(800.dp).thinOutline(),
+                modifier = Modifier.width(800.dp).thinOutline().onKeyEvent { keyEvent ->
+                    if (keyEvent.key == Key.Escape) {
+                        onCancel()
+                        true
+                    } else {
+                        false
+                    }
+                },
                 readOnly = false,
                 label = { Text(stringResource(Res.string.command)) },
                 colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface),
