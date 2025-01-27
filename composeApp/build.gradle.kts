@@ -1,4 +1,3 @@
-import com.github.javaparser.JavaParserBuild.PROJECT_VERSION
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -8,7 +7,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
-val softwareVersion: String by extra { PROJECT_VERSION }
+val teVersion: String by project
 
 kotlin {
     jvm("desktop")
@@ -48,7 +47,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "TerminalExecutor"
-            packageVersion = softwareVersion
+            packageVersion = teVersion
             description = "Executes terminal commans for you"
             copyright = "© 2025 Bojan Novakovic. All rights reserved."
             vendor = "Bojan Novaković"
@@ -71,6 +70,6 @@ compose.desktop {
 
 tasks.register("getVersionName") {
     doLast {
-        println(softwareVersion)
+        println(teVersion)
     }
 }
