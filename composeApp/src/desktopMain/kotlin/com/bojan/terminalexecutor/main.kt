@@ -29,6 +29,7 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.bojan.terminalexecutor.constants.TE_VERSION
 import com.bojan.terminalexecutor.constants.WINDOW_MINIMUM_SIZE
 import com.bojan.terminalexecutor.settings.IS_MAXIMIZED
 import com.bojan.terminalexecutor.settings.TerminalExecutorSettings
@@ -36,7 +37,6 @@ import com.bojan.terminalexecutor.settings.WINDOW_HEIGHT
 import com.bojan.terminalexecutor.settings.WINDOW_WIDTH
 import com.bojan.terminalexecutor.settings.WINDOW_X
 import com.bojan.terminalexecutor.settings.WINDOW_Y
-import com.bojan.terminalexecutor.utils.PROJECT_VERSION
 import com.bojan.terminalexecutor.utils.toDp
 import com.bojan.terminalexecutor.utils.toInt
 import org.jetbrains.compose.resources.painterResource
@@ -76,7 +76,7 @@ fun main() = application {
 
     val appStateInfo by remember { mutableStateOf(AppStateInfo(changesMade = false)) }
     var showConfirmExit by remember { mutableStateOf(false) }
-    val windowTitle = stringResource(Res.string.app_window_title, PROJECT_VERSION)
+    val windowTitle = stringResource(Res.string.app_window_title, TE_VERSION)
     Window(
         onCloseRequest = {
             if (appStateInfo.changesMade) {
