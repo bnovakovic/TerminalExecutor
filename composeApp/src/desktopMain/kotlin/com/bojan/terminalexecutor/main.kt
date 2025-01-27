@@ -18,6 +18,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -72,22 +76,29 @@ fun main() = application {
 
 
     val state = rememberWindowState(size = DpSize(windowWidth, windowHeight), position = position, placement = placement)
-
-
     val appStateInfo by remember { mutableStateOf(AppStateInfo(changesMade = false)) }
     var showConfirmExit by remember { mutableStateOf(false) }
     val windowTitle = stringResource(Res.string.app_window_title, TE_VERSION)
+    val closeRequest = {
+        if (appStateInfo.changesMade) {
+            showConfirmExit = true
+        } else {
+            appExit(this)
+        }
+    }
     Window(
         onCloseRequest = {
-            if (appStateInfo.changesMade) {
-                showConfirmExit = true
-            } else {
-                appExit(this)
-            }
+            closeRequest()
         },
         title = windowTitle,
         state = state,
-        icon = painterResource(Res.drawable.launcher_icon)
+        icon = painterResource(Res.drawable.launcher_icon),
+        onKeyEvent = {
+            if (it.type == KeyEventType.KeyDown && it.key == Key.Escape) {
+                closeRequest()
+            }
+            return@Window false
+        },
     ) {
         window.minimumSize = WINDOW_MINIMUM_SIZE
         saveWindowState(state, settings)
@@ -109,7 +120,12 @@ private fun confirmExit(onYes: () -> Unit, onNo: () -> Unit) {
             modifier = Modifier.width(300.dp).background(MaterialTheme.colors.surface).padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(stringResource(Res.string.confirm_exit_changes), color = MaterialTheme.colors.onSurface, textAlign = TextAlign.Center, style = MaterialTheme.typography.body1)
+            Text(
+                stringResource(Res.string.confirm_exit_changes),
+                color = MaterialTheme.colors.onSurface,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.body1
+            )
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
                 Spacer(modifier = Modifier.weight(1.0f))
