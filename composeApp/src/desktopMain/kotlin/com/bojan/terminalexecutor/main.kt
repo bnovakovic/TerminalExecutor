@@ -29,6 +29,7 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.bojan.terminalexecutor.constants.WINDOW_MINIMUM_SIZE
 import com.bojan.terminalexecutor.settings.IS_MAXIMIZED
 import com.bojan.terminalexecutor.settings.TerminalExecutorSettings
 import com.bojan.terminalexecutor.settings.WINDOW_HEIGHT
@@ -72,6 +73,7 @@ fun main() = application {
 
     val state = rememberWindowState(size = DpSize(windowWidth, windowHeight), position = position, placement = placement)
 
+
     val appStateInfo by remember { mutableStateOf(AppStateInfo(changesMade = false)) }
     var showConfirmExit by remember { mutableStateOf(false) }
     val windowTitle = stringResource(Res.string.app_window_title, PROJECT_VERSION)
@@ -87,6 +89,7 @@ fun main() = application {
         state = state,
         icon = painterResource(Res.drawable.launcher_icon)
     ) {
+        window.minimumSize = WINDOW_MINIMUM_SIZE
         saveWindowState(state, settings)
         App(appStateInfo, state.size.height, settings)
         if (showConfirmExit) {
