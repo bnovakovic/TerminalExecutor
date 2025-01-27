@@ -2,6 +2,7 @@ package com.bojan.terminalexecutor.ui.controls
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -61,8 +62,13 @@ fun DropDownMenu(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = if (items.size > selectedValue && selectedValue >= 0) items[selectedValue] else "", color = MaterialTheme.colors.onSurface)
-                Spacer(modifier = Modifier.weight(1.0f))
+                Text(
+                    text = if (items.size > selectedValue && selectedValue >= 0) items[selectedValue] else "",
+                    color = MaterialTheme.colors.onSurface,
+                    modifier = Modifier
+                        .basicMarquee()
+                        .weight(1.0f)
+                )
                 Image(
                     imageVector = Icons.Filled.ArrowDropDown,
                     contentDescription = null,
