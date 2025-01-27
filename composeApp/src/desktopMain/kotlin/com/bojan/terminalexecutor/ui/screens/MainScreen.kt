@@ -2,7 +2,7 @@ package com.bojan.terminalexecutor.ui.screens
 
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -32,22 +31,23 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bojan.terminalexecutor.DraggableVerticalSpacer
+import com.bojan.terminalexecutor.constants.COMPACT_MODE_BUTTON_WIDTH
+import com.bojan.terminalexecutor.constants.COMPACT_MODE_TOP_BAR_WIDTH
 import com.bojan.terminalexecutor.constants.JSON_EXTENSION
 import com.bojan.terminalexecutor.enum.ExecuteState
+import com.bojan.terminalexecutor.ktx.thinCircleOutlineWithOpacity
 import com.bojan.terminalexecutor.ktx.thinOutline
 import com.bojan.terminalexecutor.settings.EXPORT_PATH
 import com.bojan.terminalexecutor.settings.IMPORT_PATH
@@ -61,9 +61,9 @@ import com.bojan.terminalexecutor.swing.openFileSwingChooser
 import com.bojan.terminalexecutor.swing.saveFileSwingChooser
 import com.bojan.terminalexecutor.ui.controls.AddRootItem
 import com.bojan.terminalexecutor.ui.controls.CommandListGroup
+import com.bojan.terminalexecutor.ui.controls.CompactableButton
 import com.bojan.terminalexecutor.ui.controls.DeviceSelector
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
-import com.bojan.terminalexecutor.utils.clamp
 import com.bojan.terminalexecutor.utils.toDp
 import com.bojan.terminalexecutor.utils.toInt
 import com.bojan.terminalexecutor.viewmodel.MainScreenViewModel
@@ -78,15 +78,19 @@ import terminalexecutor.composeapp.generated.resources.dark_mode
 import terminalexecutor.composeapp.generated.resources.execute
 import terminalexecutor.composeapp.generated.resources.export
 import terminalexecutor.composeapp.generated.resources.file_already_exist
+import terminalexecutor.composeapp.generated.resources.file_import
 import terminalexecutor.composeapp.generated.resources.file_not_found_message
 import terminalexecutor.composeapp.generated.resources.file_not_found_title
+import terminalexecutor.composeapp.generated.resources.folder_open
 import terminalexecutor.composeapp.generated.resources.import
 import terminalexecutor.composeapp.generated.resources.open_file
 import terminalexecutor.composeapp.generated.resources.output
 import terminalexecutor.composeapp.generated.resources.params_text
 import terminalexecutor.composeapp.generated.resources.save
+import terminalexecutor.composeapp.generated.resources.save_as
 import terminalexecutor.composeapp.generated.resources.save_configuration_file
 import terminalexecutor.composeapp.generated.resources.select_working_dir
+import terminalexecutor.composeapp.generated.resources.terminal
 import terminalexecutor.composeapp.generated.resources.working_directory
 import java.io.File
 import javax.swing.filechooser.FileNameExtensionFilter
@@ -141,9 +145,9 @@ fun MainScreen(viewModel: MainScreenViewModel, windowHeight: Dp) {
             viewModel = viewModel,
             expandedMap = uiState.groupExpanded
         )
-        DraggableVerticalSpacer(size = defaultItemSpacing, defaultOffset = loadedOffset.toFloat(), onDragOffset = { offset =  it.toInt() })
+        DraggableVerticalSpacer(size = defaultItemSpacing, defaultOffset = loadedOffset.toFloat(), onDragOffset = { offset = it.toInt() })
         InfoFields(
-            height =infoFieldsHeight.toDp(),
+            height = infoFieldsHeight.toDp(),
             command = uiState.command,
             output = uiState.outputText,
             viewModel = viewModel,
@@ -173,38 +177,53 @@ private fun TopBar(
     onDarkModeEnabled: (Boolean) -> Unit,
     onChangeWorkingDir: () -> Unit
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().then(modifier)
-    ) {
-        TextField(
-            value = currentDir.toString(),
-            onValueChange = {},
-            modifier = Modifier.weight(1.0f).thinOutline(),
-            readOnly = true,
-            singleLine = true,
-            label = { Text(stringResource(Res.string.working_directory)) },
-            trailingIcon = {
-                IconButton(onClick = onChangeWorkingDir) {
-                    Icon(Icons.Default.Edit, contentDescription = null)
+
+    BoxWithConstraints {
+        val compactMode = deviceListVisible && maxWidth < COMPACT_MODE_TOP_BAR_WIDTH
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth().then(modifier)
+        ) {
+
+
+
+
+            if (compactMode) {
+                IconButton(onClick = onChangeWorkingDir, modifier = Modifier.thinCircleOutlineWithOpacity()) {
+                    Icon(painterResource(Res.drawable.folder_open), contentDescription = null, tint = MaterialTheme.colors.onSurface)
                 }
-            },
-            colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface)
-        )
-        if (deviceListVisible) {
-            DeviceSelector(devices, selectedDevice, onDeviceSelected)
+                Spacer(modifier = Modifier.weight(1.0f))
+            } else {
+                TextField(
+                    value = currentDir.toString(),
+                    onValueChange = {},
+                    modifier = Modifier.weight(1.0f).thinOutline(),
+                    readOnly = true,
+                    singleLine = true,
+                    label = { Text(stringResource(Res.string.working_directory)) },
+                    trailingIcon = {
+                        IconButton(onClick = onChangeWorkingDir) {
+                            Icon(Icons.Default.Edit, contentDescription = null)
+                        }
+                    },
+                    colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface)
+                )
+            }
+            if (deviceListVisible) {
+                DeviceSelector(devices, selectedDevice, onDeviceSelected)
+            }
+            Spacer(modifier = Modifier.width(4.dp))
+            var checked by remember { mutableStateOf(defaultSwitchValue) }
+            Text(stringResource(Res.string.dark_mode), color = MaterialTheme.colors.onSurface)
+            Spacer(modifier = Modifier.width(4.dp))
+            Switch(
+                checked = checked,
+                onCheckedChange = {
+                    checked = it
+                    onDarkModeEnabled(checked)
+                },
+            )
         }
-        Spacer(modifier = Modifier.width(4.dp))
-        var checked by remember { mutableStateOf(defaultSwitchValue) }
-        Text(stringResource(Res.string.dark_mode), color = MaterialTheme.colors.onSurface)
-        Spacer(modifier = Modifier.width(4.dp))
-        Switch(
-            checked = checked,
-            onCheckedChange = {
-                checked = it
-                onDarkModeEnabled(checked)
-            },
-        )
     }
 }
 
@@ -335,48 +354,59 @@ private fun ActionButtons(
     val fileNotFoundMessage = stringResource(Res.string.file_not_found_message)
     val fileNotFoundTitle = stringResource(Res.string.file_not_found_title)
 
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
-        Button(onClick = { viewModel.execute() }, enabled = allowExecution) {
-            Text(stringResource(Res.string.execute))
-        }
-        Spacer(modifier = Modifier.width(spacing_s))
-        when (executeState) {
-            ExecuteState.NONE -> {}
-            ExecuteState.WORKING -> {
-                CircularProgressIndicator(modifier = Modifier.width(32.dp).padding(top = 8.dp), color = MaterialTheme.colors.secondary)
-            }
+    BoxWithConstraints {
+        val compactMode = maxWidth < COMPACT_MODE_BUTTON_WIDTH
 
-            ExecuteState.ERROR -> {
-                Icon(
-                    Icons.Default.Warning,
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp),
-                    tint = MaterialTheme.colors.error
-                )
-            }
-
-            ExecuteState.OK -> {
-                Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(32.dp), MaterialTheme.colors.primary)
-            }
-        }
-        if (hasChanges) {
-            Spacer(modifier = Modifier.weight(1.0f))
-            Button(onClick = { viewModel.saveChanges() }) {
-                Text(stringResource(Res.string.save))
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
+            CompactableButton(
+                text = Res.string.execute,
+                icon = Res.drawable.terminal,
+                enabled = allowExecution,
+                isCompact = compactMode
+            ) {
+                viewModel.execute()
             }
             Spacer(modifier = Modifier.width(spacing_s))
-        } else {
-            Spacer(modifier = Modifier.weight(1.0f))
-        }
+            when (executeState) {
+                ExecuteState.NONE -> {}
+                ExecuteState.WORKING -> {
+                    CircularProgressIndicator(modifier = Modifier.width(32.dp).padding(top = 8.dp), color = MaterialTheme.colors.secondary)
+                }
 
-        Button(onClick = { viewModel.showAddGroupDialogue() }) {
-            Text(stringResource(Res.string.add_app_path))
-        }
-        Spacer(modifier = Modifier.width(spacing_s))
+                ExecuteState.ERROR -> {
+                    Icon(
+                        Icons.Default.Warning,
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = MaterialTheme.colors.error
+                    )
+                }
+
+                ExecuteState.OK -> {
+                    Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(32.dp), MaterialTheme.colors.primary)
+                }
+            }
+            if (hasChanges) {
+                Spacer(modifier = Modifier.weight(1.0f))
+                CompactableButton(text = Res.string.save, icon = Res.drawable.save, isCompact = compactMode) {
+                    viewModel.saveChanges()
+                }
+                Spacer(modifier = Modifier.width(spacing_s))
+            } else {
+                Spacer(modifier = Modifier.weight(1.0f))
+            }
+
+            CompactableButton(text = Res.string.add_app_path, icon = Res.drawable.add, isCompact = compactMode) {
+                viewModel.showAddGroupDialogue()
+            }
+            Spacer(modifier = Modifier.width(spacing_s))
 
 
-        Button(
-            onClick = {
+            CompactableButton(
+                text = Res.string.import,
+                icon = Res.drawable.file_import,
+                isCompact = compactMode,
+            ) {
                 val previousWorkingDir = viewModel.settings.getString(IMPORT_PATH) ?: ""
                 openFileSwingChooser(
                     title = openFileTitle,
@@ -388,12 +418,12 @@ private fun ActionButtons(
                     fileDoesNotExistMessage = fileNotFoundMessage,
                 )
             }
-        ) {
-            Text(stringResource(Res.string.import))
-        }
-        Spacer(modifier = Modifier.width(spacing_s))
-        Button(
-            onClick = {
+            Spacer(modifier = Modifier.width(spacing_s))
+            CompactableButton(
+                text = Res.string.export,
+                icon = Res.drawable.save_as,
+                isCompact = compactMode
+            ) {
                 val previousWorkingDir = viewModel.settings.getString(EXPORT_PATH) ?: ""
                 saveFileSwingChooser(
                     title = exportTitle,
@@ -408,10 +438,7 @@ private fun ActionButtons(
                     overwriteTitle = fileExistTitle
                 )
             }
-        ) {
-            Text(stringResource(Res.string.export))
         }
     }
-
 
 }
