@@ -1,7 +1,6 @@
 package com.bojan.terminalexecutor.ui.controls
 
 import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,16 +17,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.bojan.terminalexecutor.HorizontalSpacer_s
 import com.bojan.terminalexecutor.HorizontalSpacer_xs
+import com.bojan.terminalexecutor.ktx.doubleClickable
 import com.bojan.terminalexecutor.ktx.thinOutline
 import com.bojan.terminalexecutor.ui.uistates.ParamInfoUiState
 
 @Composable
-fun ParamsList(items: List<ParamInfoUiState>, modifier: Modifier, onItemSelected: (String) -> Unit) {
+fun ParamsList(items: List<ParamInfoUiState>, modifier: Modifier, onItemSelected: (String) -> Unit, onDoubleClick: () -> Unit) {
     val scrollState = rememberLazyListState()
     Row(modifier = Modifier.thinOutline().width(200.dp).then(modifier)) {
         LazyColumn(state = scrollState, modifier = Modifier.weight(1.0f)) {
             items(items) { item ->
-                Row(modifier = Modifier.clickable { onItemSelected(item.value) }.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .doubleClickable(
+                            onClick = { onItemSelected(item.value) },
+                            onDoubleClick = { onDoubleClick() }
+                        ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     HorizontalSpacer_s()
                     Text(item.name, color = MaterialTheme.colors.onSurface)
                     HorizontalSpacer_xs()

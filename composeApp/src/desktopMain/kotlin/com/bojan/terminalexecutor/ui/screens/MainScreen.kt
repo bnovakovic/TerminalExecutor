@@ -332,10 +332,15 @@ fun InfoFields(
 
             if (params.isNotEmpty()) {
                 HorizontalSpacer_s()
-                ParamsList(params, modifier = Modifier.height(commandHeight.toDp()), {
-                    paramsText = it
-                    viewModel.paramsTextUpdated(it)
-                })
+                ParamsList(
+                    items = params,
+                    modifier = Modifier.height(commandHeight.toDp()),
+                    onItemSelected = {
+                        paramsText = it
+                        viewModel.paramsTextUpdated(it)
+                    },
+                    onDoubleClick = { viewModel.execute() }
+                )
             }
         }
 
