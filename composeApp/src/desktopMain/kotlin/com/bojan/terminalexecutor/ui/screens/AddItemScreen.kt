@@ -31,8 +31,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.bojan.terminalexecutor.HorizontalSpacer_s
@@ -80,6 +82,7 @@ fun AddItemScreen(
         var paramName by remember { mutableStateOf("") }
         var paramValue by remember { mutableStateOf("") }
         val focusRequester = remember { FocusRequester() }
+        val paramNameFocusRequester = remember { FocusRequester() }
         var params by remember { mutableStateOf(listOf<ParamInfoUiState>()) }
         val paramsListState = rememberLazyListState()
 
@@ -178,7 +181,7 @@ fun AddItemScreen(
             TextField(
                 value = paramName,
                 onValueChange = { paramName = it },
-                modifier = Modifier.width(800.dp).thinOutline().onKeyEvent { keyEvent ->
+                modifier = Modifier.width(800.dp).focusRequester(paramNameFocusRequester).thinOutline().onKeyEvent { keyEvent ->
                     if (keyEvent.key == Key.Escape) {
                         onCancel()
                         true
@@ -187,6 +190,7 @@ fun AddItemScreen(
                     }
                 },
                 readOnly = false,
+                singleLine = true,
                 label = { Text(stringResource(Res.string.param_name)) },
                 colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface),
             )
@@ -206,6 +210,7 @@ fun AddItemScreen(
                         }
                     },
                     readOnly = false,
+                    singleLine = true,
                     label = { Text(stringResource(Res.string.param_value)) },
                     colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface),
                 )
