@@ -45,7 +45,7 @@ Commands can be executed by either double-clicking on the list entry or by press
 **Important note!**
 It is crucial to save your configuration before exiting the application by clicking the Save button. Failure to do so will result in the loss of all unsaved progress.
 
-## Adding new items?
+## Adding new items
 Upon the creation of your initial group, you will have the opportunity to add your first item. During the item addition process, you will be able to incorporate predefined parameters. This functionality is designed to streamline your workflow by allowing you to consolidate multiple items under a single entry.
 
 ![Add item screen](Documentation/Images/add_item.png)
