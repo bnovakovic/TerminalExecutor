@@ -9,7 +9,10 @@ import java.io.File
 
 suspend fun importList(file: File, idGenerator: RandomIdGenerator): Result<List<ListItemGroupUiState>> {
     return try {
-        val imported = Json.decodeFromString<ItemList>(file.readText())
+        val json = Json {
+            ignoreUnknownKeys = true
+        }
+        val imported = json.decodeFromString<ItemList>(file.readText())
         val uiState = imported.items.map { listItemGroupData ->  listItemGroupData.toListItemGroupUiState(idGenerator) }
         Result.success(uiState)
     } catch (e: Exception) {

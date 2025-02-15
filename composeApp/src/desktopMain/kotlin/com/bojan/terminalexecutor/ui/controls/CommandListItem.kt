@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
+import com.bojan.terminalexecutor.ui.uistates.ParamInfoUiState
 import org.jetbrains.compose.resources.painterResource
 import terminalexecutor.composeapp.generated.resources.Res
 import terminalexecutor.composeapp.generated.resources.add
@@ -75,7 +76,7 @@ fun CommandListGroup(
     onDeleteItem: (ListItemGroupUiState, Int) -> Unit,
     onDeleteGroup: (ListItemGroupUiState) -> Unit,
     onAddItem: (String) -> Unit,
-    onItemSelected: (List<String>) -> Unit,
+    onItemSelected: (commands: List<String>, params: List<ParamInfoUiState>) -> Unit,
 ) {
 
     Column(modifier = Modifier.fillMaxWidth().then(modifier)) {
@@ -111,7 +112,7 @@ fun CommandListGroup(
                 CommandListItem(
                     item.name,
                     Modifier.padding(start = 24.dp),
-                    onDelete = { onDeleteItem(groupUiState, index) }) { onItemSelected(item.commands) }
+                    onDelete = { onDeleteItem(groupUiState, index) }) { onItemSelected(item.commands, item.params) }
             }
             groupUiState.children.forEach { group ->
                 val isChildExpanded = expandedMap[group.id] ?: false

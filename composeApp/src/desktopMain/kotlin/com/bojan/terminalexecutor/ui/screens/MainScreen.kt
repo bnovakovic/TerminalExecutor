@@ -63,7 +63,9 @@ import com.bojan.terminalexecutor.ui.controls.AddRootItem
 import com.bojan.terminalexecutor.ui.controls.CommandListGroup
 import com.bojan.terminalexecutor.ui.controls.CompactableButton
 import com.bojan.terminalexecutor.ui.controls.DeviceSelector
+import com.bojan.terminalexecutor.ui.controls.ParamsList
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
+import com.bojan.terminalexecutor.ui.uistates.ParamInfoUiState
 import com.bojan.terminalexecutor.utils.toDp
 import com.bojan.terminalexecutor.utils.toInt
 import com.bojan.terminalexecutor.viewmodel.MainScreenViewModel
@@ -150,6 +152,7 @@ fun MainScreen(viewModel: MainScreenViewModel, windowHeight: Dp) {
             height = infoFieldsHeight.toDp(),
             command = uiState.command,
             output = uiState.outputText,
+            params = uiState.paramsList,
             viewModel = viewModel,
             itemSpacing = defaultItemSpacing
         )
@@ -184,8 +187,6 @@ private fun TopBar(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth().then(modifier)
         ) {
-
-
 
 
             if (compactMode) {
@@ -250,7 +251,9 @@ fun ItemList(
                             onAddItem = {
                                 viewModel.showAddItemDialogue(it)
                             },
-                            onItemSelected = { viewModel.changeCommand(it) },
+                            onItemSelected = { commands, params ->
+                                viewModel.changeCommand(commands = commands, params = params)
+                            },
                             onDeleteGroup = { viewModel.askDeleteGroup(it) },
                             onDeleteItem = { parent, index ->
                                 viewModel.askDeleteItem(parent, index)
@@ -278,6 +281,7 @@ fun InfoFields(
     height: Dp,
     command: String,
     output: String,
+    params: List<ParamInfoUiState>,
     viewModel: MainScreenViewModel,
     itemSpacing: Dp
 ) {
@@ -309,19 +313,30 @@ fun InfoFields(
         )
         Spacer(modifier = Modifier.height(itemSpacing))
 
-        TextField(
-            value = command,
-            onValueChange = {},
-            modifier = Modifier.height(commandHeight.toDp()).fillMaxWidth().thinOutline(),
-            readOnly = true,
-            label = { Text(stringResource(Res.string.command)) },
-            trailingIcon = {
-                IconButton(onClick = { clipboardManager.setText(buildAnnotatedString { append(command) }) }) {
-                    Icon(painter = painterResource(Res.drawable.copy_icon), contentDescription = null)
-                }
-            },
-            colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface)
-        )
+        Row(modifier = Modifier.fillMaxWidth()) {
+            TextField(
+                value = command,
+                onValueChange = {},
+                modifier = Modifier.height(commandHeight.toDp()).weight(1.0f).thinOutline(),
+                readOnly = true,
+                label = { Text(stringResource(Res.string.command)) },
+                trailingIcon = {
+                    IconButton(onClick = { clipboardManager.setText(buildAnnotatedString { append(command) }) }) {
+                        Icon(painter = painterResource(Res.drawable.copy_icon), contentDescription = null)
+                    }
+                },
+                colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface)
+            )
+
+            if (params.isNotEmpty()) {
+                Spacer(modifier = Modifier.width(spacing_s))
+                ParamsList(params, modifier = Modifier.height(commandHeight.toDp()), {
+                    paramsText = it
+                    viewModel.paramsTextUpdated(it)
+                })
+            }
+        }
+
         DraggableVerticalSpacer(size = itemSpacing, defaultOffset = loadedOffset.toFloat(), onDragOffset = { offset = it.toInt() })
         TextField(
             value = output,

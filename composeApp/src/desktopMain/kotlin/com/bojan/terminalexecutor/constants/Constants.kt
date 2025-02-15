@@ -5,6 +5,7 @@ import java.awt.Dimension
 
 const val JSON_EXTENSION = "json"
 const val TE_VERSION = "1.0.2"
+const val PARAMS_REQUIRED_TEXT = "$1"
 
 val WINDOW_MINIMUM_SIZE = Dimension(440, 660)
 val COMPACT_MODE_BUTTON_WIDTH = 535.dp

@@ -18,6 +18,7 @@ import com.bojan.terminalexecutor.ui.uistates.ItemsUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ListItemUiState
 import com.bojan.terminalexecutor.ui.uistates.MainScreenUiState
+import com.bojan.terminalexecutor.ui.uistates.ParamInfoUiState
 import com.bojan.terminalexecutor.utils.RandomIdGenerator
 import com.bojan.terminalexecutor.utils.getConfigFile
 import com.bojan.terminalexecutor.utils.getCurrentDir
@@ -50,7 +51,8 @@ class MainScreenViewModel(
             groupExpanded = emptyMap(),
             adbDevices = emptyList(),
             selectedDevice = 0,
-            isAdbCommand = false
+            isAdbCommand = false,
+            paramsList = emptyList()
         )
     )
     val uiState = _uiState.asStateFlow()
@@ -93,7 +95,7 @@ class MainScreenViewModel(
         _uiState.value = _uiState.value.copy(selectedDevice = deviceIndex)
     }
 
-    fun changeCommand(commands: List<String>) {
+    fun changeCommand(commands: List<String>, params: List<ParamInfoUiState>) {
 
         // Unfortunately double click either causes lag or issues in compose, so I had to use this non standard way of detecting it.
         if (doubleClickActive && commands == commandToExecute && _uiState.value.allowExecution) {
@@ -104,7 +106,8 @@ class MainScreenViewModel(
             _uiState.value = _uiState.value.copy(
                 command = generateCommandText(),
                 allowExecution = commands.isNotEmpty() && _uiState.value.executeState != ExecuteState.WORKING,
-                isAdbCommand = isAdbCommand
+                isAdbCommand = isAdbCommand,
+                paramsList = params
             )
             doubleClickActive = true
             startDoubleClickTimerReset()

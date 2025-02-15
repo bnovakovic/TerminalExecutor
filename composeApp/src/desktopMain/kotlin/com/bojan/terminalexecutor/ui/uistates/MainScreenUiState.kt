@@ -17,4 +17,5 @@ data class MainScreenUiState(
     val adbDevices: List<String>,
     val selectedDevice: Int,
     val isAdbCommand: Boolean,
+    val paramsList: List<ParamInfoUiState>
 )
