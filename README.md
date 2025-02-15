@@ -4,6 +4,7 @@
 - [Overview](#overview)
 - [Known issues / Limitations](#known-issues--limitations)
 - [How to use](#how-to-use-the-terminal-executor)
+- [Adding new items](#adding-new-items)
 - [Import Export](#import--export)
 - [Tech Stack](#tech-stack)
 - [Getting Started](#getting-started)
@@ -43,6 +44,18 @@ Commands can be executed by either double-clicking on the list entry or by press
 
 **Important note!**
 It is crucial to save your configuration before exiting the application by clicking the Save button. Failure to do so will result in the loss of all unsaved progress.
+
+## Adding new items?
+Upon the creation of your initial group, you will have the opportunity to add your first item. During the item addition process, you will be able to incorporate predefined parameters. This functionality is designed to streamline your workflow by allowing you to consolidate multiple items under a single entry.
+
+![Add item screen](Documentation/Images/add_item.png)
+
+**Important note!**
+It is essential that your command includes at least one command parameter designated with `$1`. For instance, the command should be formatted as `adb $1`.
+
+Once an item with parameters has been selected, it will be displayed adjacent to the command input field.
+
+![Add item screen](Documentation/Images/params_display.png)
 
 ## Import / Export
 You can import an existing configuration file by using the `Import` button. The configuration file contains all previously added console commands.
