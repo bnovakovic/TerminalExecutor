@@ -4,7 +4,7 @@ import androidx.compose.ui.unit.dp
 import java.awt.Dimension
 
 const val JSON_EXTENSION = "json"
-const val TE_VERSION = "1.0.2"
+const val TE_VERSION = "1.0.3"
 const val PARAMS_REQUIRED_TEXT = "$1"
 const val DOUBLE_CLICK_DELAY = 300
 
