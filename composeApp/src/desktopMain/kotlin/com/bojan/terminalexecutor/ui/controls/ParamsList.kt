@@ -3,7 +3,6 @@ package com.bojan.terminalexecutor.ui.controls
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -17,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.bojan.terminalexecutor.HorizontalSpacer_s
+import com.bojan.terminalexecutor.HorizontalSpacer_xs
 import com.bojan.terminalexecutor.ktx.thinOutline
 import com.bojan.terminalexecutor.ui.uistates.ParamInfoUiState
 
@@ -27,9 +28,9 @@ fun ParamsList(items: List<ParamInfoUiState>, modifier: Modifier, onItemSelected
         LazyColumn(state = scrollState, modifier = Modifier.weight(1.0f)) {
             items(items) { item ->
                 Row(modifier = Modifier.clickable { onItemSelected(item.value) }.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Spacer(modifier = Modifier.width(10.dp))
+                    HorizontalSpacer_s()
                     Text(item.name, color = MaterialTheme.colors.onSurface)
-                    Spacer(modifier = Modifier.width(6.dp))
+                    HorizontalSpacer_xs()
                 }
             }
         }

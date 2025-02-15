@@ -43,6 +43,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bojan.terminalexecutor.DraggableVerticalSpacer
+import com.bojan.terminalexecutor.HorizontalSpacer_s
+import com.bojan.terminalexecutor.HorizontalSpacer_xs
 import com.bojan.terminalexecutor.constants.COMPACT_MODE_BUTTON_WIDTH
 import com.bojan.terminalexecutor.constants.COMPACT_MODE_TOP_BAR_WIDTH
 import com.bojan.terminalexecutor.constants.JSON_EXTENSION
@@ -213,10 +215,10 @@ private fun TopBar(
             if (deviceListVisible) {
                 DeviceSelector(devices, selectedDevice, onDeviceSelected)
             }
-            Spacer(modifier = Modifier.width(4.dp))
+            HorizontalSpacer_xs()
             var checked by remember { mutableStateOf(defaultSwitchValue) }
             Text(stringResource(Res.string.dark_mode), color = MaterialTheme.colors.onSurface)
-            Spacer(modifier = Modifier.width(4.dp))
+            HorizontalSpacer_xs()
             Switch(
                 checked = checked,
                 onCheckedChange = {
@@ -329,7 +331,7 @@ fun InfoFields(
             )
 
             if (params.isNotEmpty()) {
-                Spacer(modifier = Modifier.width(spacing_s))
+                HorizontalSpacer_s()
                 ParamsList(params, modifier = Modifier.height(commandHeight.toDp()), {
                     paramsText = it
                     viewModel.paramsTextUpdated(it)
@@ -381,7 +383,7 @@ private fun ActionButtons(
             ) {
                 viewModel.execute()
             }
-            Spacer(modifier = Modifier.width(spacing_s))
+            HorizontalSpacer_s()
             when (executeState) {
                 ExecuteState.NONE -> {}
                 ExecuteState.WORKING -> {
@@ -406,7 +408,7 @@ private fun ActionButtons(
                 CompactableButton(text = Res.string.save, icon = Res.drawable.save, isCompact = compactMode) {
                     viewModel.saveChanges()
                 }
-                Spacer(modifier = Modifier.width(spacing_s))
+                HorizontalSpacer_s()
             } else {
                 Spacer(modifier = Modifier.weight(1.0f))
             }
@@ -414,7 +416,7 @@ private fun ActionButtons(
             CompactableButton(text = Res.string.add_app_path, icon = Res.drawable.add, isCompact = compactMode) {
                 viewModel.showAddGroupDialogue()
             }
-            Spacer(modifier = Modifier.width(spacing_s))
+            HorizontalSpacer_s()
 
 
             CompactableButton(
@@ -433,7 +435,7 @@ private fun ActionButtons(
                     fileDoesNotExistMessage = fileNotFoundMessage,
                 )
             }
-            Spacer(modifier = Modifier.width(spacing_s))
+            HorizontalSpacer_s()
             CompactableButton(
                 text = Res.string.export,
                 icon = Res.drawable.save_as,

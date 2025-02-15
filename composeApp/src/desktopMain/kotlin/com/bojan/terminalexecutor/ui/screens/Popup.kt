@@ -23,6 +23,8 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.bojan.terminalexecutor.HorizontalSpacer_m
+import com.bojan.terminalexecutor.VerticalSpacer_s
 import com.bojan.terminalexecutor.enum.MainScreenDialog
 import com.bojan.terminalexecutor.settings.APP_PATHS
 import com.bojan.terminalexecutor.ui.uistates.MainScreenUiState
@@ -118,13 +120,13 @@ fun YesNoPopupScreen(message: String, onYes: () -> Unit, onNo: () -> Unit) {
             },
     ) {
         Text(message, color = MaterialTheme.colors.onSurface, textAlign = TextAlign.Center)
-        Spacer(modifier = Modifier.height(8.dp))
+        VerticalSpacer_s()
         Row {
             Spacer(modifier = Modifier.weight(1.0f))
             Button(onClick = onYes) {
                 Text(stringResource(Res.string.yes))
             }
-            Spacer(modifier = Modifier.width(16.dp))
+            HorizontalSpacer_m()
             Button(onClick = onNo) {
                 Text(stringResource(Res.string.no))
             }

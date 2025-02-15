@@ -35,6 +35,9 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import com.bojan.terminalexecutor.HorizontalSpacer_s
+import com.bojan.terminalexecutor.VerticalSpacer_s
+import com.bojan.terminalexecutor.VerticalSpacer_xs
 import com.bojan.terminalexecutor.constants.PARAMS_REQUIRED_TEXT
 import com.bojan.terminalexecutor.ktx.thinOutline
 import com.bojan.terminalexecutor.spacing_s
@@ -97,7 +100,7 @@ fun AddItemScreen(
 
         if (!groupOnly) {
             Text(stringResource(Res.string.item_type), color = MaterialTheme.colors.onSurface)
-            Spacer(modifier = Modifier.height(4.dp))
+            VerticalSpacer_xs()
             Row(modifier.selectableGroup().thinOutline()) {
                 radioOptions.forEach { text ->
                     Row(
@@ -129,10 +132,10 @@ fun AddItemScreen(
                 stringResource(Res.string.enter_group_name),
                 color = MaterialTheme.colors.onSurface
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            VerticalSpacer_xs()
         }
 
-        Spacer(modifier.height(spacing_s))
+        VerticalSpacer_s()
 
         TextField(
             value = nameText,
@@ -151,8 +154,7 @@ fun AddItemScreen(
             colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface)
         )
 
-        Spacer(modifier.height(8.dp))
-
+        VerticalSpacer_s()
 
         if (addingCommand) {
             TextField(
@@ -171,7 +173,7 @@ fun AddItemScreen(
                 colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface),
             )
 
-            Spacer(modifier.height(spacing_s))
+            VerticalSpacer_s()
 
             TextField(
                 value = paramName,
@@ -189,7 +191,7 @@ fun AddItemScreen(
                 colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface),
             )
 
-            Spacer(modifier.height(spacing_s))
+            VerticalSpacer_s()
 
             Row(modifier = Modifier.width(800.dp), verticalAlignment = Alignment.CenterVertically) {
                 TextField(
@@ -208,7 +210,7 @@ fun AddItemScreen(
                     colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface),
                 )
 
-                Spacer(modifier.width(spacing_s))
+                HorizontalSpacer_s()
 
                 Button(
                     onClick = {
@@ -224,7 +226,7 @@ fun AddItemScreen(
                 }
             }
 
-            Spacer(modifier.height(spacing_s))
+            VerticalSpacer_s()
 
             if (params.isNotEmpty()) {
 
@@ -245,7 +247,7 @@ fun AddItemScreen(
                     )
                 }
 
-                Spacer(modifier.height(spacing_s))
+                VerticalSpacer_s()
             }
         }
 
@@ -254,7 +256,7 @@ fun AddItemScreen(
             Button(onClick = onCancel) {
                 Text(stringResource(Res.string.cancel))
             }
-            Spacer(modifier = Modifier.width(spacing_s))
+            HorizontalSpacer_s()
             Button(
                 onClick = {
                     if (addingCommand) {

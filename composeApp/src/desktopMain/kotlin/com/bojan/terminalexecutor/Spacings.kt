@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -41,4 +42,44 @@ fun DraggableVerticalSpacer(size: Dp, maxOffset: Float = 0.0f, defaultOffset: Fl
     ) {
         Spacer(modifier = Modifier.height(size).fillMaxWidth())
     }
+}
+
+@Composable
+fun VerticalSpacer_xs() {
+    Spacer(modifier = Modifier.height(spacing_xs))
+}
+
+@Composable
+fun VerticalSpacer_s() {
+    Spacer(modifier = Modifier.height(spacing_s))
+}
+
+@Composable
+fun VerticalSpacer_m() {
+    Spacer(modifier = Modifier.height(spacing_m))
+}
+
+@Composable
+fun VerticalSpacer_l() {
+    Spacer(modifier = Modifier.height(spacing_l))
+}
+
+@Composable
+fun HorizontalSpacer_xs() {
+    Spacer(modifier = Modifier.width(spacing_xs))
+}
+
+@Composable
+fun HorizontalSpacer_s() {
+    Spacer(modifier = Modifier.width(spacing_s))
+}
+
+@Composable
+fun HorizontalSpacer_m() {
+    Spacer(modifier = Modifier.width(spacing_m))
+}
+
+@Composable
+fun HorizontalSpacer_l() {
+    Spacer(modifier = Modifier.width(spacing_l))
 }

@@ -19,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
+import com.bojan.terminalexecutor.HorizontalSpacer_s
+import com.bojan.terminalexecutor.HorizontalSpacer_xs
 import com.bojan.terminalexecutor.ui.uistates.ListItemGroupUiState
 import com.bojan.terminalexecutor.ui.uistates.ParamInfoUiState
 import org.jetbrains.compose.resources.painterResource
@@ -35,7 +37,7 @@ fun CommandListItem(
     onItemSelected: () -> Unit
 ) {
     Row(modifier = Modifier.clickable { onItemSelected() }.fillMaxWidth().then(modifier), verticalAlignment = Alignment.CenterVertically) {
-        Spacer(modifier = Modifier.width(10.dp))
+        HorizontalSpacer_s()
         Text(name, color = MaterialTheme.colors.onSurface)
         Spacer(modifier = Modifier.weight(1.0f))
         Image(
@@ -44,7 +46,7 @@ fun CommandListItem(
             Modifier.size(16.dp).clickable { onDelete() },
             colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface)
         )
-        Spacer(modifier = Modifier.width(6.dp))
+        HorizontalSpacer_xs()
     }
 }
 
@@ -54,14 +56,14 @@ fun AddRootItem(
     onItemSelected: () -> Unit
 ) {
     Row(modifier = Modifier.clickable { onItemSelected() }.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Spacer(modifier = Modifier.width(10.dp))
+        HorizontalSpacer_s()
         Image(
             painter = painterResource(Res.drawable.add),
             contentDescription = null,
             modifier = Modifier.size(16.dp),
             colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface)
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        HorizontalSpacer_s()
         Text(text, color = MaterialTheme.colors.onSurface)
     }
 }
@@ -89,9 +91,9 @@ fun CommandListGroup(
                 contentDescription = null,
                 tint = MaterialTheme.colors.onSurface
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            HorizontalSpacer_s()
             Text(groupUiState.text, color = MaterialTheme.colors.onSurface)
-            Spacer(modifier = Modifier.width(8.dp))
+            HorizontalSpacer_xs()
             Image(
                 painter = painterResource(Res.drawable.add),
                 contentDescription = null,
@@ -105,7 +107,7 @@ fun CommandListGroup(
                 Modifier.size(16.dp).clickable { onDeleteGroup(groupUiState) },
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface)
             )
-            Spacer(modifier = Modifier.width(6.dp))
+            HorizontalSpacer_xs()
         }
         if (expanded) {
             groupUiState.items.forEachIndexed { index, item ->

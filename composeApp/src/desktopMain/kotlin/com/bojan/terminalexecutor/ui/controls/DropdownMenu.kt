@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
+import com.bojan.terminalexecutor.HorizontalSpacer_s
 import com.bojan.terminalexecutor.ktx.thinOutline
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -61,7 +62,7 @@ fun DropDownMenu(
                 .alpha(desiredAlpha)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Spacer(modifier = Modifier.width(8.dp))
+                HorizontalSpacer_s()
                 Text(
                     text = if (items.size > selectedValue && selectedValue >= 0) items[selectedValue] else "",
                     color = MaterialTheme.colors.onSurface,

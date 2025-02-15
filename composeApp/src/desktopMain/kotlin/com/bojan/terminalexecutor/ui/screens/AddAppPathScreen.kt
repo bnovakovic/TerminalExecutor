@@ -27,6 +27,9 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.bojan.terminalexecutor.HorizontalSpacer_s
+import com.bojan.terminalexecutor.VerticalSpacer_l
+import com.bojan.terminalexecutor.VerticalSpacer_s
 import com.bojan.terminalexecutor.ktx.thinOutline
 import org.jetbrains.compose.resources.stringResource
 import terminalexecutor.composeapp.generated.resources.Res
@@ -54,7 +57,7 @@ fun AddAppPathScreen(
         val focusRequester = remember { FocusRequester() }
 
         Text(stringResource(Res.string.add_app_description), color = MaterialTheme.colors.onSurface, textAlign = TextAlign.Center)
-        Spacer(modifier.height(24.dp))
+        VerticalSpacer_l()
 
 
         TextField(
@@ -78,7 +81,7 @@ fun AddAppPathScreen(
             singleLine = true,
             colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface),
         )
-        Spacer(modifier.height(8.dp))
+        VerticalSpacer_s()
         TextField(
             value = pathText,
             onValueChange = { pathText = it },
@@ -95,14 +98,14 @@ fun AddAppPathScreen(
             colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colors.onSurface),
         )
 
-        Spacer(modifier.height(8.dp))
+        VerticalSpacer_s()
 
         Row {
             Spacer(modifier = Modifier.weight(1.0f))
             Button(onClick = onCancel) {
                 Text(stringResource(Res.string.cancel))
             }
-            Spacer(modifier = Modifier.width(8.dp))
+            HorizontalSpacer_s()
             Button(
                 onClick = {
                     onAddItem(appText, pathText)

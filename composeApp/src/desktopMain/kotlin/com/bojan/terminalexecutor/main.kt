@@ -126,13 +126,13 @@ private fun confirmExit(onYes: () -> Unit, onNo: () -> Unit) {
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.body1
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            VerticalSpacer_m()
             Row(modifier = Modifier.fillMaxWidth()) {
                 Spacer(modifier = Modifier.weight(1.0f))
                 Button(onClick = onYes) {
                     Text(stringResource(Res.string.yes))
                 }
-                Spacer(modifier = Modifier.width(16.dp))
+                HorizontalSpacer_m()
                 Button(onClick = onNo) {
                     Text(stringResource(Res.string.no))
                 }

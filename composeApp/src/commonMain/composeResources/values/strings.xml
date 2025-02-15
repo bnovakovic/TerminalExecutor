@@ -36,6 +36,6 @@
     <string name="path">Path</string>
     <string name="device">Device:</string>
     <string name="none">None</string>
-    <string name="param_name">Param name</string>
-    <string name="param_value">Param value</string>
+    <string name="param_name">Param name (optional)</string>
+    <string name="param_value">Param value (optional)</string>
 </resources>

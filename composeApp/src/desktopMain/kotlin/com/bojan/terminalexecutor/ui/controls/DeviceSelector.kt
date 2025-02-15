@@ -8,6 +8,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.bojan.terminalexecutor.HorizontalSpacer_xs
 import org.jetbrains.compose.resources.stringResource
 import terminalexecutor.composeapp.generated.resources.Res
 import terminalexecutor.composeapp.generated.resources.device
@@ -15,9 +16,9 @@ import terminalexecutor.composeapp.generated.resources.none
 
 @Composable
 fun DeviceSelector(devices: List<String>, selectedDevice: Int, onDeviceSelected: (Int) -> Unit) {
-    Spacer(modifier = Modifier.width(4.dp))
+    HorizontalSpacer_xs()
     Text(stringResource(Res.string.device), color = MaterialTheme.colors.onSurface)
-    Spacer(modifier = Modifier.width(4.dp))
+    HorizontalSpacer_xs()
     DropDownMenu(
         selectedDevice,
         items = listOf(stringResource(Res.string.none)) + devices,
