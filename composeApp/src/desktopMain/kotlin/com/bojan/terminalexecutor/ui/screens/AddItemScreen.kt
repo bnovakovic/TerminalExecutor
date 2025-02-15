@@ -242,7 +242,7 @@ fun AddItemScreen(
                                 val cachedItems = params.toMutableList()
                                 cachedItems.removeAt(index)
                                 params = cachedItems.toList()
-                            }, onItemSelected = {})
+                            }, onItemSelected = {}, onDoubleClick = {})
                         }
                     }
 

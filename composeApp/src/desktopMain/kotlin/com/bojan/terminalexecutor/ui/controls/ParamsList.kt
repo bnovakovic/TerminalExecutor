@@ -32,7 +32,7 @@ fun ParamsList(items: List<ParamInfoUiState>, modifier: Modifier, onItemSelected
                         .fillMaxWidth()
                         .doubleClickable(
                             onClick = { onItemSelected(item.value) },
-                            onDoubleClick = { onDoubleClick() }
+                            onDoubleClick = onDoubleClick
                         ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {

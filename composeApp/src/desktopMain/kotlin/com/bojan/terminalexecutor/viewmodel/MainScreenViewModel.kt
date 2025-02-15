@@ -22,8 +22,6 @@ import com.bojan.terminalexecutor.ui.uistates.ParamInfoUiState
 import com.bojan.terminalexecutor.utils.RandomIdGenerator
 import com.bojan.terminalexecutor.utils.getConfigFile
 import com.bojan.terminalexecutor.utils.getCurrentDir
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -60,8 +58,6 @@ class MainScreenViewModel(
     private var storedParentId: String? = null
     private var currentParams: String = ""
 
-    private var doubleClickActive: Boolean = false
-    private var clickTimerJob: Job? = null
     private val deviceCheckTimer: Timer = Timer()
     private var deviceReadDone = true
 
@@ -96,22 +92,14 @@ class MainScreenViewModel(
     }
 
     fun changeCommand(commands: List<String>, params: List<ParamInfoUiState>) {
-
-        // Unfortunately double click either causes lag or issues in compose, so I had to use this non standard way of detecting it.
-        if (doubleClickActive && commands == commandToExecute && _uiState.value.allowExecution) {
-            execute()
-        } else {
-            val isAdbCommand = commands.isNotEmpty() && commands[0].lowercase() == ADB_COMMAND
-            commandToExecute = commands
-            _uiState.value = _uiState.value.copy(
-                command = generateCommandText(),
-                allowExecution = commands.isNotEmpty() && _uiState.value.executeState != ExecuteState.WORKING,
-                isAdbCommand = isAdbCommand,
-                paramsList = params
-            )
-            doubleClickActive = true
-            startDoubleClickTimerReset()
-        }
+        val isAdbCommand = commands.isNotEmpty() && commands[0].lowercase() == ADB_COMMAND
+        commandToExecute = commands
+        _uiState.value = _uiState.value.copy(
+            command = generateCommandText(),
+            allowExecution = commands.isNotEmpty() && _uiState.value.executeState != ExecuteState.WORKING,
+            isAdbCommand = isAdbCommand,
+            paramsList = params
+        )
     }
 
     fun execute() {
@@ -295,13 +283,6 @@ class MainScreenViewModel(
         _uiState.value = _uiState.value.copy(changesMade = false)
     }
 
-    private fun startDoubleClickTimerReset() {
-        clickTimerJob = viewModelScope.launch {
-            delay(DOUBLE_CLICK_DELAY)
-            doubleClickActive = false
-        }
-    }
-
     private suspend fun getDeviceList(): List<String> {
         var deviceList = listOf<String>()
         executeCommand(GET_DEVICES_COMMAND, _uiState.value.workingDirectory, settings.getMap(APP_PATHS))
@@ -339,12 +320,11 @@ class MainScreenViewModel(
         }
 
     }
+
     companion object {
-        const val DOUBLE_CLICK_DELAY = 300L
         const val ADB_DEVICE_REFRESH_DELAY = 1000L
         const val ADB_COMMAND = "adb"
         const val ADB_DEVICE_PREFIX = "-s"
         val GET_DEVICES_COMMAND = listOf(ADB_COMMAND, "devices")
-
     }
 }

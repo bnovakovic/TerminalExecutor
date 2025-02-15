@@ -260,7 +260,8 @@ fun ItemList(
                             onDeleteItem = { parent, index ->
                                 viewModel.askDeleteItem(parent, index)
                             },
-                            expandedMap = expandedMap
+                            expandedMap = expandedMap,
+                            onDoubleClick = viewModel::execute
                         )
                     }
                     if (index == items.lastIndex) {
@@ -339,7 +340,7 @@ fun InfoFields(
                         paramsText = it
                         viewModel.paramsTextUpdated(it)
                     },
-                    onDoubleClick = { viewModel.execute() }
+                    onDoubleClick = viewModel::execute
                 )
             }
         }
